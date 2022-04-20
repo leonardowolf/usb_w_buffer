@@ -183,8 +183,8 @@ void monitor_interrupt(void) {
 				is_cmd = !is_cmd;
 				bgn_print = offset + 1;
 			} else if (printable && !is_cmd) {
-				strncpy(ans, cmd + bgn_print, end_print - bgn_print);
-				lcd_print(ans);
+				/*strncpy(ans, cmd + bgn_print, end_print - bgn_print);
+				lcd_print(ans);*/
 			}
 
 
