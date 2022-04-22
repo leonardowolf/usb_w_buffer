@@ -2,4 +2,4 @@
 ../Core/Src/com_monitor.c:28:6:monitor_check_cmd	24	static
 ../Core/Src/com_monitor.c:146:6:app_usb_cbk	24	static
 ../Core/Src/com_monitor.c:158:6:monitor_interrupt	16	static
-../Core/Src/com_monitor.c:197:6:monitor_begin	8	static
+../Core/Src/com_monitor.c:204:6:monitor_begin	16	static

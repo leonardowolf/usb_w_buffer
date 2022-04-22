@@ -73,7 +73,7 @@ void Start_APP(void){
 
 		u8g2_InitDisplay(&u8g2);
 		u8g2_SetPowerSave(&u8g2, 0);
-		set_contrast(OPTIMAL_CONTRAST + '0');
+		set_contrast(OPTIMAL_CONTRAST);
 
 		u8g2_SetDrawColor(&u8g2, 2);
 		u8g2_SetBitmapMode(&u8g2, 1);
@@ -96,7 +96,7 @@ void Start_APP(void){
 
 		u8g2_SetFont(&u8g2, u8g2_font_10x20_mf);
 		disp_splash();
-		text_insertion_point((0 + '0'), (0 + '0'));
+		text_insertion_point(0 , 0);
 	//	u8g2_SetFont(&u8g2, u8g2_font_unifont_t_symbols);
 		monitor_begin();
 }

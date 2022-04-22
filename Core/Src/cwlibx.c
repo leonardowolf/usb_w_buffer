@@ -71,12 +71,8 @@ void auto_scroll(uint8_t enable) {
  */
 void text_insertion_point(uint8_t col, uint8_t row) {
 	//convertendo a entrada para posição em termos de caractere
-	col = col * u8g2_GetMaxCharWidth(&u8g2);
-	row = row * u8g2_GetMaxCharHeight(&u8g2);
-	//x do cursor
-	//y do cursor
-	cursor[0] = col /*- '0'*/;
-	cursor[1] = row /*- '0'*/;
+	cursor[0] = col * u8g2_GetMaxCharWidth(&u8g2) /*- '0'*/;
+	cursor[1] = row * (u8g2_GetMaxCharHeight(&u8g2) - ESP_ENTRE_LINHAS)/*- '0'*/;
 }
 
 /**@brief Underline cursor 											(Default: OFF)
@@ -168,9 +164,9 @@ void custom_character(uint8_t index, uint8_t *bit_array);
  *	254 `=` [col] [height] 253
  */
 void draw_v_bar_graph(uint8_t col, uint8_t height) {
-	cursor[0] = (col - '0') * u8g2_GetMaxCharWidth(&u8g2);
+	cursor[0] = col * u8g2_GetMaxCharWidth(&u8g2);
 
-	u8g2_DrawBox(&u8g2, cursor[0], cursor[1], vertical_bar_width, height - '0');
+	u8g2_DrawBox(&u8g2, cursor[0], cursor[1], vertical_bar_width, height);
 	u8g2_SendBuffer(&u8g2);
 }
 
@@ -182,8 +178,8 @@ void draw_v_bar_graph(uint8_t col, uint8_t height) {
  *	254 `-` [col] [height] 253
  */
 void erase_v_bar_graph(uint8_t col, uint8_t height) {
-	cursor[0] = (col - '0') * u8g2_GetMaxCharWidth(&u8g2);
-	u8g2_DrawBox(&u8g2, cursor[0], cursor[1], vertical_bar_width, height - '0');
+	cursor[0] = col * u8g2_GetMaxCharWidth(&u8g2);
+	u8g2_DrawBox(&u8g2, cursor[0], cursor[1], vertical_bar_width, height);
 	u8g2_SendBuffer(&u8g2);
 }
 
@@ -195,9 +191,9 @@ void erase_v_bar_graph(uint8_t col, uint8_t height) {
  *	254 `|` [cc] [height] 253
  */
 void draw_h_bar_graph(uint8_t col, uint8_t row, uint8_t lenght) {
-	cursor[0] = (col - '0') * u8g2_GetMaxCharHeight(&u8g2);
-	cursor[1] = (row - '0') * u8g2_GetMaxCharWidth(&u8g2);
-	u8g2_DrawBox(&u8g2, cursor[0], cursor[1], lenght - '0',
+	cursor[0] = (col  ) * u8g2_GetMaxCharHeight(&u8g2);
+	cursor[1] = (row  ) * u8g2_GetMaxCharWidth(&u8g2);
+	u8g2_DrawBox(&u8g2, cursor[0], cursor[1], lenght  ,
 			u8g2_GetMaxCharHeight(&u8g2));
 	u8g2_SendBuffer(&u8g2);
 	//u8g2_DrawVLine(&u8g2, col, u8g2_uint_t y, u8g2_uint_t h);
@@ -220,7 +216,7 @@ void erase_h_bar(uint8_t col, uint8_t height);
  */
 void put_pixel(uint8_t x, uint8_t y) {
 	u8g2_SetDrawColor(&u8g2, 1);
-	u8g2_DrawPixel(&u8g2, x - '0', y - '0');
+	u8g2_DrawPixel(&u8g2, x  , y  );
 	u8g2_SendBuffer(&u8g2);
 }
 
@@ -232,7 +228,7 @@ void put_pixel(uint8_t x, uint8_t y) {
  */
 void erase_pixel(uint8_t x, uint8_t y) {
 	u8g2_SetDrawColor(&u8g2, 0);
-	u8g2_DrawPixel(&u8g2, x - '0', y - '0');
+	u8g2_DrawPixel(&u8g2, x  , y  );
 	u8g2_SendBuffer(&u8g2);
 }
 
@@ -265,7 +261,7 @@ void lcd_soft_reset(void) {
  *	@retval  flag confirmando que o comando foi executado
  */
 void clear_display(void) {
-	text_insertion_point(0 + '0', 0 + '0');
+	text_insertion_point(0 , 0);
 	u8g2_ClearDisplay(&u8g2);
 }
 
@@ -398,7 +394,7 @@ uint8_t gpi_get_state(uint8_t gpi);
  *		254 'h' 253
  */
 void set_contrast(uint8_t contrast) {
-	u8g2_SetContrast(&u8g2, (contrast - '0') * 9);
+	u8g2_SetContrast(&u8g2, (contrast  ) * 9);
 }
 
 /** @brief Save Boot-up Logo															(Default: N/A)
@@ -450,7 +446,7 @@ void str_warper(txt_wrap *wrap, uint8_t *txt) {
 	} while (aux != wrap->wrap_times);
 }
 void put_cursor(void){
-	lcd_print("_ A");
+	lcd_print("_");
 	u8g2_SendBuffer(&u8g2);
 }
 void test_font(void){

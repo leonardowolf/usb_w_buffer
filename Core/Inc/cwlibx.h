@@ -57,6 +57,7 @@ static bool text_wrap = false;
 static uint8_t cursor[2] = { 0, 0 };
 static uint8_t ddp[2] = { 3, 141 };
 static uint8_t vertical_bar_width = 5;
+static uint8_t ESP_ENTRE_LINHAS = 4;
 
 typedef struct {
 

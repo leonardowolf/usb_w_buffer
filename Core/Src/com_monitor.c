@@ -157,7 +157,7 @@ void app_usb_cbk(uint8_t *buf, uint32_t len) {
 
 void monitor_interrupt(void) {
 	if (new_cmd) {
-		uint8_t offset = 0, bgn_print, end_print;
+		uint8_t offset, bgn_print, end_print, i;
 		bgn_print = 0;
 		end_print = size;
 		bool is_cmd = false;
@@ -165,15 +165,27 @@ void monitor_interrupt(void) {
 		/*o buffer tem a entrada completa, agora só precisa percorrer char a char, e caso encontre
 		 um inicializador de comando, chamar a função de interpretação com o vetor e o offset de onde
 		 começa o inicializador*/
-		while (offset <= size) {
-			if(*(cmd + offset)==LCD_CMD_END && *(cmd + offset + 1) != LCD_CMD && *(cmd + offset + 1) != 20 ){
+
+		for (offset = 0; offset <= size; offset++) {
+			if (*(cmd + offset) == LCD_CMD_END && *(cmd + offset + 1) != LCD_CMD
+					&& *(cmd + offset + 1) != 20) {
 				//se o caractere atual é o de finalização de comando e o proximo não é o começo de outro e nem um espaço em branco então é o começo de um trecho imprimivel
-				bgn_print = offset;
+				bgn_print = offset + 1;
 			}
-			if(*(cmd + offset)==LCD_CMD && *(cmd + offset - 1) != LCD_CMD_END || offset == size){
+			if (offset > 0 && *(cmd + offset) == LCD_CMD
+					&& *(cmd + offset - 1) != LCD_CMD_END || offset == size) {
 				//se o caractere atual é o de inicialização de comando e o anterior não é o começo de outro e
 				printable = true;
 				end_print = offset;
+			}
+			if (printable) {
+				strncpy(ans, cmd + bgn_print, end_print - bgn_print);
+				CDC_Transmit_FS(ans, end_print - bgn_print);
+				lcd_print(ans);
+				for (i = 0; i < end_print - bgn_print; i++) {
+					ans[i] = '\0';
+				}
+				printable = !printable;
 			}
 
 			if (*(cmd + offset) == LCD_CMD) {
@@ -181,20 +193,16 @@ void monitor_interrupt(void) {
 				is_cmd = !is_cmd;
 			} else if (*(cmd + offset) == LCD_CMD_END) {
 				is_cmd = !is_cmd;
-				bgn_print = offset + 1;
-			} else if (printable && !is_cmd) {
-				/*strncpy(ans, cmd + bgn_print, end_print - bgn_print);
-				lcd_print(ans);*/
+
 			}
 
-
-			offset++;
 		}
-	new_cmd = !new_cmd;
+		new_cmd = !new_cmd;
 	}
 }
 
 void monitor_begin(void) {
+	uint8_t i;
 	size = 0;
 	new_cmd = false;
 
@@ -206,4 +214,7 @@ void monitor_begin(void) {
 	//mensagem de inicialização
 	snprintf((char*) ans, CMD_BUF_SIZE, "hora do show!\r\n");
 	monitor_send_string(ans);
+	for (i = 0; i < strlen("hora do show!\r\n"); i++) {
+		ans[i] = '\0';
+	}
 }
