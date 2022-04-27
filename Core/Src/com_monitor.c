@@ -15,6 +15,8 @@
 #include "cwlibx.h"
 #include "usbd_cdc_if.h"
 
+extern TIM_HandleTypeDef htim2;
+
 uint8_t cmd[CMD_BUF_SIZE];
 uint8_t ans[ANS_BUF_SIZE];
 
@@ -22,7 +24,16 @@ uint32_t size;
 bool new_cmd;
 
 void monitor_send_string(uint8_t *buf) {
-	CDC_Transmit_FS(buf, strlen(buf));
+
+	  	while(CDC_Transmit_FS(cmd, strlen(buf))==USBD_OK){
+			//isso é a melhor forma de try til it works que eu consegui pensar
+		}
+}
+
+void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim){
+	new_cmd = true;
+	HAL_TIM_Base_Stop_IT(&htim2);
+	monitor_interrupt();
 }
 
 void monitor_check_cmd(char *cmd, uint32_t size) {
@@ -137,34 +148,36 @@ void monitor_check_cmd(char *cmd, uint32_t size) {
 		}
 
 	}
-	//se não era comando, tenta escrever na tela
-	/*	else {
-	 lcd_print(cmd);
-	 }*/
 }
 
 void app_usb_cbk(uint8_t *buf, uint32_t len) {
-	uint8_t i;
-	CDC_Transmit_FS(buf, len);
 
-	for (i = 0; i < len; i++) {
-		cmd[i] = *(buf + i);
+	memcpy(cmd+size,buf,len);
+	size += len;
+
+	if(size >= CMD_BUF_SIZE){
+		new_cmd = true;
 	}
+	//contador para timeout da comunicação
+	HAL_TIM_Base_Start_IT(&htim2);
 
-	size = len;
-	new_cmd = true;
 }
 
 void monitor_interrupt(void) {
 	if (new_cmd) {
-		uint8_t offset, bgn_print, end_print, i;
+
+		size=0;
+		memset(cmd, 0, CMD_BUF_SIZE);
+		new_cmd = !new_cmd;
+
+		/*uint8_t offset, bgn_print, end_print, i;
 		bgn_print = 0;
 		end_print = size;
 		bool is_cmd = false;
 		bool printable = false;
-		/*o buffer tem a entrada completa, agora só precisa percorrer char a char, e caso encontre
+		o buffer tem a entrada completa, agora só precisa percorrer char a char, e caso encontre
 		 um inicializador de comando, chamar a função de interpretação com o vetor e o offset de onde
-		 começa o inicializador*/
+		 começa o inicializador
 
 		for (offset = 0; offset <= size; offset++) {
 			if (*(cmd + offset) == LCD_CMD_END && *(cmd + offset + 1) != LCD_CMD
@@ -197,7 +210,7 @@ void monitor_interrupt(void) {
 			}
 
 		}
-		new_cmd = !new_cmd;
+		new_cmd = !new_cmd;*/
 	}
 }
 
