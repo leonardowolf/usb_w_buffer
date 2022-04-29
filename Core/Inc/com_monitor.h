@@ -18,6 +18,6 @@ void app_usb_cbk(uint8_t* buf, uint32_t len);
 void monitor_begin(void);
 
 #define CMD_BUF_SIZE 144
-#define ANS_BUF_SIZE 144
+#define ANS_BUF_SIZE 90
 
 #endif /* INC_COM_MONITOR_H_ */

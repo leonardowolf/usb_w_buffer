@@ -2,7 +2,7 @@
  * s_monitor.c
  *
  *  Created on: Jan 24, 2022
- *      Author: hugin
+ *      Author: hugin:João Marcos the one ans only Snake
  */
 
 #include <com_monitor.h>
@@ -24,13 +24,12 @@ uint32_t size;
 bool new_cmd;
 
 void monitor_send_string(uint8_t *buf) {
-
-	  	while(CDC_Transmit_FS(cmd, strlen(buf))==USBD_OK){
-			//isso é a melhor forma de try til it works que eu consegui pensar
-		}
+	while (CDC_Transmit_FS(cmd, strlen(buf)) == USBD_OK)
+		;
+	//isso é a melhor forma de try til it works que eu consegui pensar
 }
 
-void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim){
+void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim) {
 	new_cmd = true;
 	HAL_TIM_Base_Stop_IT(&htim2);
 	monitor_interrupt();
@@ -152,10 +151,10 @@ void monitor_check_cmd(char *cmd, uint32_t size) {
 
 void app_usb_cbk(uint8_t *buf, uint32_t len) {
 
-	memcpy(cmd+size,buf,len);
+	memcpy(cmd + size, buf, len);
 	size += len;
 
-	if(size >= CMD_BUF_SIZE){
+	if (size >= CMD_BUF_SIZE) {
 		new_cmd = true;
 	}
 	//contador para timeout da comunicação
@@ -165,19 +164,15 @@ void app_usb_cbk(uint8_t *buf, uint32_t len) {
 
 void monitor_interrupt(void) {
 	if (new_cmd) {
-
-		size=0;
-		memset(cmd, 0, CMD_BUF_SIZE);
-		new_cmd = !new_cmd;
-
-		/*uint8_t offset, bgn_print, end_print, i;
+		uint8_t offset, bgn_print, end_print, i;
 		bgn_print = 0;
 		end_print = size;
 		bool is_cmd = false;
 		bool printable = false;
-		o buffer tem a entrada completa, agora só precisa percorrer char a char, e caso encontre
-		 um inicializador de comando, chamar a função de interpretação com o vetor e o offset de onde
-		 começa o inicializador
+
+//		o buffer tem a entrada completa, agora só precisa percorrer char a char, e caso encontre
+//		 um inicializador de comando, chamar a função de interpretação com o vetor e o offset de onde
+//		 começa o inicializador
 
 		for (offset = 0; offset <= size; offset++) {
 			if (*(cmd + offset) == LCD_CMD_END && *(cmd + offset + 1) != LCD_CMD
@@ -195,9 +190,7 @@ void monitor_interrupt(void) {
 				strncpy(ans, cmd + bgn_print, end_print - bgn_print);
 				CDC_Transmit_FS(ans, end_print - bgn_print);
 				lcd_print(ans);
-				for (i = 0; i < end_print - bgn_print; i++) {
-					ans[i] = '\0';
-				}
+				memset(ans, 0, ANS_BUF_SIZE);
 				printable = !printable;
 			}
 
@@ -206,11 +199,11 @@ void monitor_interrupt(void) {
 				is_cmd = !is_cmd;
 			} else if (*(cmd + offset) == LCD_CMD_END) {
 				is_cmd = !is_cmd;
-
 			}
-
 		}
-		new_cmd = !new_cmd;*/
+		size = 0;
+		memset(cmd, 0, CMD_BUF_SIZE);
+		new_cmd = !new_cmd;
 	}
 }
 

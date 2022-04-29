@@ -94,7 +94,7 @@ void Start_APP(void){
 		n	Only numbers and extra glyphs for writing date and time strings are included in the font.
 		...	Other custom character list.*/
 
-		u8g2_SetFont(&u8g2, u8g2_font_10x20_mf);
+		u8g2_SetFont(&u8g2, u8g2_font_crox3c_mf);
 		disp_splash();
 		text_insertion_point(0 , 0);
 	//	u8g2_SetFont(&u8g2, u8g2_font_unifont_t_symbols);

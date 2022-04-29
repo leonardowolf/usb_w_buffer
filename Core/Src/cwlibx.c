@@ -7,6 +7,7 @@
  */
 #include <stdint.h>
 #include <stdbool.h>
+#include <string.h>
 #include "main.h"
 #include "u8g2.h"
 #include "ac.h"
@@ -72,7 +73,8 @@ void auto_scroll(uint8_t enable) {
 void text_insertion_point(uint8_t col, uint8_t row) {
 	//convertendo a entrada para posição em termos de caractere
 	cursor[0] = col * u8g2_GetMaxCharWidth(&u8g2) /*- '0'*/;
-	cursor[1] = row * (u8g2_GetMaxCharHeight(&u8g2) - ESP_ENTRE_LINHAS)/*- '0'*/;
+	cursor[1] = row
+			* (u8g2_GetMaxCharHeight(&u8g2) - ESP_ENTRE_LINHAS)/*- '0'*/;
 }
 
 /**@brief Underline cursor 											(Default: OFF)
@@ -191,9 +193,9 @@ void erase_v_bar_graph(uint8_t col, uint8_t height) {
  *	254 `|` [cc] [height] 253
  */
 void draw_h_bar_graph(uint8_t col, uint8_t row, uint8_t lenght) {
-	cursor[0] = (col  ) * u8g2_GetMaxCharHeight(&u8g2);
-	cursor[1] = (row  ) * u8g2_GetMaxCharWidth(&u8g2);
-	u8g2_DrawBox(&u8g2, cursor[0], cursor[1], lenght  ,
+	cursor[0] = (col) * u8g2_GetMaxCharHeight(&u8g2);
+	cursor[1] = (row) * u8g2_GetMaxCharWidth(&u8g2);
+	u8g2_DrawBox(&u8g2, cursor[0], cursor[1], lenght,
 			u8g2_GetMaxCharHeight(&u8g2));
 	u8g2_SendBuffer(&u8g2);
 	//u8g2_DrawVLine(&u8g2, col, u8g2_uint_t y, u8g2_uint_t h);
@@ -216,7 +218,7 @@ void erase_h_bar(uint8_t col, uint8_t height);
  */
 void put_pixel(uint8_t x, uint8_t y) {
 	u8g2_SetDrawColor(&u8g2, 1);
-	u8g2_DrawPixel(&u8g2, x  , y  );
+	u8g2_DrawPixel(&u8g2, x, y);
 	u8g2_SendBuffer(&u8g2);
 }
 
@@ -228,7 +230,7 @@ void put_pixel(uint8_t x, uint8_t y) {
  */
 void erase_pixel(uint8_t x, uint8_t y) {
 	u8g2_SetDrawColor(&u8g2, 0);
-	u8g2_DrawPixel(&u8g2, x  , y  );
+	u8g2_DrawPixel(&u8g2, x, y);
 	u8g2_SendBuffer(&u8g2);
 }
 
@@ -261,7 +263,7 @@ void lcd_soft_reset(void) {
  *	@retval  flag confirmando que o comando foi executado
  */
 void clear_display(void) {
-	text_insertion_point(0 , 0);
+	text_insertion_point(0, 0);
 	u8g2_ClearDisplay(&u8g2);
 }
 
@@ -394,7 +396,7 @@ uint8_t gpi_get_state(uint8_t gpi);
  *		254 'h' 253
  */
 void set_contrast(uint8_t contrast) {
-	u8g2_SetContrast(&u8g2, (contrast  ) * 9);
+	u8g2_SetContrast(&u8g2, (contrast) * 9);
 }
 
 /** @brief Save Boot-up Logo															(Default: N/A)
@@ -431,52 +433,64 @@ void restore_def_logo(void);
  * escreve um array na tela.
  *
  */
-void str_warper(txt_wrap *wrap, uint8_t *txt) {
-	uint8_t index = 0, aux = 1;
+void str_warper(txt_wrap_t *wrap, uint8_t *txt) {
+	uint8_t index = 0, aux;
+	uint8_t shift = 0;
 
-	for (index = 0; txt[index] != '\0'; index++)
-		;
-	index++;
-	wrap->wrap_times = index
-			/ (u8g2_GetDisplayWidth(&u8g2) / u8g2_GetMaxCharWidth(&u8g2));
-	do {
-		wrap->wrap_str[aux] = &txt[aux
-				* (u8g2_GetDisplayWidth(&u8g2) / u8g2_GetMaxCharWidth(&u8g2))];
-		aux++;
-	} while (aux != wrap->wrap_times);
+	index = strlen(txt);
+	wrap->wrap_times = index / MAX_CHARS_ONSCREEN;
+	if (wrap->wrap_times) {
+		for (aux = 0; aux <= wrap->wrap_times; aux++) {
+			if (aux < N_LINES) {
+
+				shift = *(txt + ((MAX_CHARS_ONSCREEN - 1) * (aux))) == ' ' ?
+						1 : 0;
+				strncpy(wrap->wrap_str[aux],
+						txt + ((MAX_CHARS_ONSCREEN) * (aux)),
+						MAX_CHARS_ONSCREEN - 1);
+				wrap->wrap_str[aux][MAX_CHARS_ONSCREEN - 1] = '\0';
+			} else {
+				shift = *(txt + ((MAX_CHARS_ONSCREEN - 1) * (aux))) == ' ' ?
+						0 : 1;
+				strncpy(wrap->wrap_str[aux],
+						txt + ((MAX_CHARS_ONSCREEN) * (aux)) + shift,
+						strlen(txt + ((MAX_CHARS_ONSCREEN - 1) * (aux))));
+			}
+		}
+	}
 }
-void put_cursor(void){
+
+void put_cursor(void) {
 	lcd_print("_");
 	u8g2_SendBuffer(&u8g2);
 }
-void test_font(void){
+void test_font(void) {
 	lcd_print("    XCoder v3.0");
 	u8g2_SendBuffer(&u8g2);
 }
 
 void lcd_print(uint8_t *txt) {
-	txt_wrap wrap;
-	wrap.wrap_str[0] = txt;
-	wrap.wrap_times = 0;
-	uint8_t aux = 0;
+	txt_wrap_t wrap;
+	uint8_t aux = 0, i;
+	bool clean_it = false;
 
 	if (text_invertion) {
 		if (text_wrap) {
 			str_warper(&wrap, txt);
-			for (aux = 0; aux + 1 <= wrap.wrap_times; aux++) {
-				cursor[1] = (aux * u8g2_GetMaxCharHeight(&u8g2));
+			for (aux = 0; aux <= wrap.wrap_times; aux++) {
+				//cursor[1] = (aux * u8g2_GetMaxCharHeight(&u8g2));
 				u8g2_DrawButtonUTF8(&u8g2, cursor[0], cursor[1], U8G2_BTN_INV,
 						0, 0, 0, wrap.wrap_str[aux]);
 				u8g2_SendBuffer(&u8g2);
-
-				if (u8g2_GetStrWidth(&u8g2,
-						wrap.wrap_str[aux - 1]) > u8g2_GetDisplayWidth(&u8g2)) {
-					cursor[1] = (aux * u8g2_GetMaxCharHeight(&u8g2));
-					cursor[0] = 0;
-				} else {
-					cursor[0] += u8g2_GetStrWidth(&u8g2,
-							wrap.wrap_str[aux - 1]);
-				}
+				clean_it = !clean_it;
+				/*	if (u8g2_GetStrWidth(&u8g2,
+				 wrap.wrap_str[aux - 1]) > u8g2_GetDisplayWidth(&u8g2)) {
+				 cursor[1] = (aux * u8g2_GetMaxCharHeight(&u8g2));
+				 cursor[0] = 0;
+				 } else {
+				 cursor[0] += u8g2_GetStrWidth(&u8g2,
+				 wrap.wrap_str[aux - 1]);
+				 }*/
 			}
 		} else {
 			u8g2_DrawButtonUTF8(&u8g2, cursor[0], cursor[1], U8G2_BTN_INV, 0, 0,
@@ -489,18 +503,28 @@ void lcd_print(uint8_t *txt) {
 	} else {
 		if (text_wrap) {
 			str_warper(&wrap, txt);
-			for (aux = 0; aux + 1 <= wrap.wrap_times; aux++) {
-				cursor[1] = (aux * u8g2_GetMaxCharHeight(&u8g2));
+			if (wrap.wrap_times) {
+				for (aux = 0; aux <= wrap.wrap_times; aux++) {
+					u8g2_DrawUTF8(&u8g2, cursor[0], cursor[1],
+							wrap.wrap_str[aux]);
+					u8g2_SendBuffer(&u8g2);
+
+					cursor[1] += (u8g2_GetMaxCharHeight(&u8g2)) - ESP_ENTRE_LINHAS;
+
+					clean_it = !clean_it;
+				}
+			} else {
 				u8g2_DrawUTF8(&u8g2, cursor[0], cursor[1], wrap.wrap_str[aux]);
 				u8g2_SendBuffer(&u8g2);
 			}
-			if (u8g2_GetStrWidth(&u8g2,
-					wrap.wrap_str[aux - 1]) > u8g2_GetDisplayWidth(&u8g2)) {
-				cursor[1] = (aux * u8g2_GetMaxCharHeight(&u8g2));
-				cursor[0] = 0;
-			} else {
-				cursor[0] += u8g2_GetStrWidth(&u8g2, wrap.wrap_str[aux - 1]);
-			}
+
+			/*if (u8g2_GetStrWidth(&u8g2,
+			 wrap.wrap_str[aux - 1]) > u8g2_GetDisplayWidth(&u8g2)) {
+			 cursor[1] = (aux * u8g2_GetMaxCharHeight(&u8g2));
+			 cursor[0] = 0;
+			 } else {
+			 cursor[0] += u8g2_GetStrWidth(&u8g2, wrap.wrap_str[aux - 1]);
+			 }*/
 		} else {
 			u8g2_DrawUTF8(&u8g2, cursor[0], cursor[1], txt);
 			u8g2_SendBuffer(&u8g2);
@@ -508,6 +532,11 @@ void lcd_print(uint8_t *txt) {
 			cursor[0] += u8g2_GetStrWidth(&u8g2, txt);
 		}
 	}
+	if (clean_it) {
 
+		memset(wrap.wrap_str, 0, sizeof(wrap.wrap_str));
+		clean_it = !clean_it;
+
+	}
 }
 

@@ -52,19 +52,24 @@
 #define LCD_CMD      						254
 #define LCD_CMD_END   						253
 
+#define N_LINES 							5
+#define MAX_CHARS_ONSCREEN 					20
+
 static bool text_invertion = false;
 static bool text_wrap = false;
 static uint8_t cursor[2] = { 0, 0 };
 static uint8_t ddp[2] = { 3, 141 };
 static uint8_t vertical_bar_width = 5;
-static uint8_t ESP_ENTRE_LINHAS = 4;
+static uint8_t ESP_ENTRE_LINHAS = 2;
 
-typedef struct {
 
-	uint8_t *wrap_str[5];
-	uint8_t wrap_times;
+typedef struct
+{
 
-} txt_wrap;
+    uint8_t wrap_str[N_LINES][MAX_CHARS_ONSCREEN];
+    uint8_t wrap_times;
+
+} txt_wrap_t;
 
 void inverse_text(bool state);
 void set_contrast(uint8_t contrast);
@@ -83,6 +88,6 @@ void def_thick_v_bar(void);
 void draw_v_bar_graph(uint8_t col, uint8_t height);
 void erase_v_bar_graph(uint8_t col, uint8_t height);
 void draw_h_bar_graph(uint8_t col, uint8_t row, uint8_t lenght);
-void str_warper(txt_wrap *wrap, uint8_t *txt);
+void str_warper(txt_wrap_t *wrap, uint8_t *txt);
 
 #endif /* INC_CWLIBX_H_ */
