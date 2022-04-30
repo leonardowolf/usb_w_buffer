@@ -8,6 +8,7 @@ C_SRCS += \
 ../Core/Src/ac.c \
 ../Core/Src/com_monitor.c \
 ../Core/Src/cwlibx.c \
+../Core/Src/keypad_IH.c \
 ../Core/Src/main.c \
 ../Core/Src/stm32f1xx_hal_msp.c \
 ../Core/Src/stm32f1xx_it.c \
@@ -19,6 +20,7 @@ OBJS += \
 ./Core/Src/ac.o \
 ./Core/Src/com_monitor.o \
 ./Core/Src/cwlibx.o \
+./Core/Src/keypad_IH.o \
 ./Core/Src/main.o \
 ./Core/Src/stm32f1xx_hal_msp.o \
 ./Core/Src/stm32f1xx_it.o \
@@ -30,6 +32,7 @@ C_DEPS += \
 ./Core/Src/ac.d \
 ./Core/Src/com_monitor.d \
 ./Core/Src/cwlibx.d \
+./Core/Src/keypad_IH.d \
 ./Core/Src/main.d \
 ./Core/Src/stm32f1xx_hal_msp.d \
 ./Core/Src/stm32f1xx_it.d \
@@ -45,7 +48,7 @@ Core/Src/%.o Core/Src/%.su: ../Core/Src/%.c Core/Src/subdir.mk
 clean: clean-Core-2f-Src
 
 clean-Core-2f-Src:
-	-$(RM) ./Core/Src/ac.d ./Core/Src/ac.o ./Core/Src/ac.su ./Core/Src/com_monitor.d ./Core/Src/com_monitor.o ./Core/Src/com_monitor.su ./Core/Src/cwlibx.d ./Core/Src/cwlibx.o ./Core/Src/cwlibx.su ./Core/Src/main.d ./Core/Src/main.o ./Core/Src/main.su ./Core/Src/stm32f1xx_hal_msp.d ./Core/Src/stm32f1xx_hal_msp.o ./Core/Src/stm32f1xx_hal_msp.su ./Core/Src/stm32f1xx_it.d ./Core/Src/stm32f1xx_it.o ./Core/Src/stm32f1xx_it.su ./Core/Src/syscalls.d ./Core/Src/syscalls.o ./Core/Src/syscalls.su ./Core/Src/sysmem.d ./Core/Src/sysmem.o ./Core/Src/sysmem.su ./Core/Src/system_stm32f1xx.d ./Core/Src/system_stm32f1xx.o ./Core/Src/system_stm32f1xx.su
+	-$(RM) ./Core/Src/ac.d ./Core/Src/ac.o ./Core/Src/ac.su ./Core/Src/com_monitor.d ./Core/Src/com_monitor.o ./Core/Src/com_monitor.su ./Core/Src/cwlibx.d ./Core/Src/cwlibx.o ./Core/Src/cwlibx.su ./Core/Src/keypad_IH.d ./Core/Src/keypad_IH.o ./Core/Src/keypad_IH.su ./Core/Src/main.d ./Core/Src/main.o ./Core/Src/main.su ./Core/Src/stm32f1xx_hal_msp.d ./Core/Src/stm32f1xx_hal_msp.o ./Core/Src/stm32f1xx_hal_msp.su ./Core/Src/stm32f1xx_it.d ./Core/Src/stm32f1xx_it.o ./Core/Src/stm32f1xx_it.su ./Core/Src/syscalls.d ./Core/Src/syscalls.o ./Core/Src/syscalls.su ./Core/Src/sysmem.d ./Core/Src/sysmem.o ./Core/Src/sysmem.su ./Core/Src/system_stm32f1xx.d ./Core/Src/system_stm32f1xx.o ./Core/Src/system_stm32f1xx.su
 
 .PHONY: clean-Core-2f-Src
 

@@ -35,7 +35,8 @@ Core/Src/ac.o: ../Core/Src/ac.c ../Core/Inc/ac.h ../Core/Inc/u8g2.h \
  ../USB_DEVICE/Target/usbd_conf.h \
  ../Middlewares/ST/STM32_USB_Device_Library/Core/Inc/usbd_core.h \
  ../Middlewares/ST/STM32_USB_Device_Library/Core/Inc/usbd_ioreq.h \
- ../Middlewares/ST/STM32_USB_Device_Library/Core/Inc/usbd_ctlreq.h
+ ../Middlewares/ST/STM32_USB_Device_Library/Core/Inc/usbd_ctlreq.h \
+ ../Core/Inc/keypad_IH.h ../Core/Inc/main.h
 ../Core/Inc/ac.h:
 ../Core/Inc/u8g2.h:
 ../Core/Inc/u8x8.h:
@@ -79,3 +80,5 @@ Core/Src/ac.o: ../Core/Src/ac.c ../Core/Inc/ac.h ../Core/Inc/u8g2.h \
 ../Middlewares/ST/STM32_USB_Device_Library/Core/Inc/usbd_core.h:
 ../Middlewares/ST/STM32_USB_Device_Library/Core/Inc/usbd_ioreq.h:
 ../Middlewares/ST/STM32_USB_Device_Library/Core/Inc/usbd_ctlreq.h:
+../Core/Inc/keypad_IH.h:
+../Core/Inc/main.h:
