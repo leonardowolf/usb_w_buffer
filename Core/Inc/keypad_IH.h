@@ -8,7 +8,7 @@
 #ifndef INC_KEYPAD_IH_H_
 #define INC_KEYPAD_IH_H_
 
-#define DEBOUNCE_TIME 375
+#define DEBOUNCE_TIME 500
 
 #include <stdint.h>
 #include <stdbool.h>
