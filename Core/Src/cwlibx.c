@@ -514,7 +514,7 @@ void lcd_print(uint8_t *txt) {
 					clean_it = !clean_it;
 				}
 			} else {
-				u8g2_DrawUTF8(&u8g2, cursor[0], cursor[1], wrap.wrap_str[aux]);
+				u8g2_DrawUTF8(&u8g2, cursor[0], cursor[1], txt);
 				u8g2_SendBuffer(&u8g2);
 			}
 

@@ -17,4 +17,4 @@
 ../Core/Src/cwlibx.c:436:6:str_warper	32	static
 ../Core/Src/cwlibx.c:463:6:put_cursor	8	static
 ../Core/Src/cwlibx.c:467:6:test_font	8	static
-../Core/Src/cwlibx.c:472:6:lcd_print	144	static
+../Core/Src/cwlibx.c:472:6:lcd_print	152	static

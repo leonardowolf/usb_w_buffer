@@ -53,7 +53,7 @@
 #define LCD_CMD_END   						253
 
 #define N_LINES 							5
-#define MAX_CHARS_ONSCREEN 					20
+#define MAX_CHARS_ONSCREEN 					21
 
 static bool text_invertion = false;
 static bool text_wrap = false;

@@ -182,7 +182,7 @@ void monitor_interrupt(void) {
 			}
 			if (offset > 0 && *(cmd + offset) == LCD_CMD
 					&& *(cmd + offset - 1) != LCD_CMD_END || offset == size) {
-				//se o caractere atual é o de inicialização de comando e o anterior não é o começo de outro e
+				//se o caractere atual é o de inicialização de comando e o anterior não é o fim de outro
 				printable = true;
 				end_print = offset;
 			}

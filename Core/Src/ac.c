@@ -77,9 +77,11 @@ void Start_APP(void){
 		u8g2_SetPowerSave(&u8g2, 0);
 		set_contrast(OPTIMAL_CONTRAST);
 
-		u8g2_SetDrawColor(&u8g2, 2);
-		u8g2_SetBitmapMode(&u8g2, 1);
-		u8g2_SetFontMode(&u8g2, 1);
+		u8g2_SetBitmapMode(&u8g2,0);
+
+
+		u8g2_SetDrawColor(&u8g2, 1);
+		u8g2_SetFontMode(&u8g2, 0);
 		u8g2_SetFontPosTop(&u8g2);
 
 	/*	U8g2 Font names
@@ -96,7 +98,7 @@ void Start_APP(void){
 		n	Only numbers and extra glyphs for writing date and time strings are included in the font.
 		...	Other custom character list.*/
 
-		u8g2_SetFont(&u8g2, u8g2_font_crox3c_mf);
+		u8g2_SetFont(&u8g2, u8g2_font_crox2c_mf);
 		disp_splash();
 		text_insertion_point(0 , 0);
 	//	u8g2_SetFont(&u8g2, u8g2_font_unifont_t_symbols);
