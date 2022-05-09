@@ -15,10 +15,22 @@
 #include "cwlibx.h"
 
 extern u8g2_t u8g2;
-//extern uint8_t u8g2_cursor[2];
+extern TIM_HandleTypeDef htim1;
 
 #define delay_betwen_cmds 50 //tempo de descanso entre comandos
 
+custom_character_t custom_character_db[CUSTOM_CHARACTER_BUFFER_SIZE];
+
+
+/**@brief	Initialize the custom characters Database					(Default: OFF)
+*	inicializa o banco de caracteres com o que foi salvo na memoria do equipamento
+*	por hora ele seta todos os valores salvos para zero mas pode um dia buscar na
+*	memoria persistente pelos valores gravados
+*
+*/
+void init_custom_character_db(void){
+	memset(custom_character_db,0,sizeof(custom_character_db));
+}
 // 				Command Summary
 //	->TEXT Commands
 
@@ -156,7 +168,13 @@ void def_thin_v_bar(void) {
  *	254 104 [cc] [6bytes] 253
  *	254 `N` [cc] [6bytes] 253
  */
-void custom_character(uint8_t index, uint8_t *bit_array);
+void define_custom_character(uint8_t *cmd){
+	if(!(custom_character_db[*(cmd+2)].custo_character_index)){
+		memcpy(custom_character_db[*(cmd+2)].custom_caracter,cmd+3,6);
+		custom_character_db[*(cmd+2)].custo_character_index = *(cmd+2);
+	}
+
+}
 
 /**@brief Draw a vertical bar graph									(Default: N/A)
  *	Desenha uma coluna vertical na ultima linha da coluna [col] de altura [height], com [height]
@@ -240,7 +258,19 @@ void erase_pixel(uint8_t x, uint8_t y) {
  *	254 62 [x] [row] [byte] [4 dummy bytes]  253
  *	254 `>` [x] [row] [byte] [4 dummy bytes]  253
  */
-void put_byte(uint8_t x, uint8_t row, uint8_t *byte);
+void put_byte(uint8_t x, uint8_t row, uint8_t byte){
+	char arr[8], i;
+	memset(arr, 0, 8);
+	for(i=0; byte > 0; i++)
+	  {
+	    arr[i] = byte%2;
+	    byte = byte/2;
+	  }
+	row = row * ((u8g2_GetMaxCharHeight(&u8g2)) - ESP_ENTRE_LINHAS);
+	u8g2_DrawXBM(&u8g2 , x, row, 1, 8, arr);
+	u8g2_SendBuffer(&u8g2);
+
+}
 
 // Miscellaneous command summary
 
@@ -282,8 +312,14 @@ void clear_display(void) {
  */
 void enable_backlight(bool enable) {
 	//liga a backlight
-	HAL_GPIO_WritePin(GPIOA, GPIO_PIN_4,
-			enable ? GPIO_PIN_SET : GPIO_PIN_RESET);
+	if(enable){
+	HAL_GPIO_WritePin(GPIOA, GPIO_PIN_4,GPIO_PIN_SET);
+	HAL_TIM_PWM_Start(&htim1, TIM_CHANNEL_1);
+	__HAL_TIM_SET_COMPARE(&htim1, TIM_CHANNEL_1, LCD_BRIGHT );
+	}else{
+		HAL_GPIO_WritePin(GPIOA, GPIO_PIN_4,GPIO_PIN_RESET);
+		HAL_TIM_PWM_Stop(&htim1, TIM_CHANNEL_1);
+	}
 }
 
 /** @brief Backlight brightness															(Default: N/A)
@@ -292,7 +328,12 @@ void enable_backlight(bool enable) {
  *		254 64 [bright] 253
  *		254 'A' [bright] 253
  */
-void set_backlight_brightness(uint8_t bright);
+void set_backlight_brightness(uint8_t bright){
+	if(bright){
+	LCD_BRIGHT = (7/bright)*59999;
+	__HAL_TIM_SET_COMPARE(&htim1, TIM_CHANNEL_1, LCD_BRIGHT);
+	}
+}
 
 /** @brief Auto Key Hold state															(Default: N/A)
  * -on
@@ -537,6 +578,20 @@ void lcd_print(uint8_t *txt) {
 		memset(wrap.wrap_str, 0, sizeof(wrap.wrap_str));
 		clean_it = !clean_it;
 
+	}
+}
+
+void custom_character_dealer(uint8_t index){
+	uint8_t char_w = 8;
+	uint8_t char_h = 6;
+	if((custom_character_db[index].custo_character_index)){
+		u8g2_DrawXBM(&u8g2 , cursor[0], cursor[1], char_w, char_h, custom_character_db[index].custom_caracter);
+		u8g2_SendBuffer(&u8g2);
+		cursor[0] += u8g2_GetMaxCharWidth(&u8g2);
+
+		//é um custom caracter
+		//ele foi definido pelo usuario
+		//ele deve ser impresso
 	}
 }
 

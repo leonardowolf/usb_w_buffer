@@ -2,7 +2,7 @@
  * s_monitor.c
  *
  *  Created on: Jan 24, 2022
- *      Author: hugin:João Marcos the one ans only Snake
+ *      Author: huginand João Marcos the one and only Snake
  */
 
 #include <com_monitor.h>
@@ -66,10 +66,14 @@ void monitor_check_cmd(char *cmd, uint32_t size) {
 		else if (cmd[1] == LCD_BACKLIGHT_OFF) {
 			enable_backlight(false);
 		}
+		else if (cmd[1] == LCD_BACKLIGHT_BRIGHTNESS) {
+			set_backlight_brightness(cmd[2]);
+		}
 
 		else if (cmd[1] == LCD_INVERSE_TEXT_ON) {
 			inverse_text(true);
 		}
+
 
 		else if (cmd[1] == LCD_INVERSE_TEXT_OFF) {
 			inverse_text(false);
@@ -86,6 +90,13 @@ void monitor_check_cmd(char *cmd, uint32_t size) {
 		else if (cmd[1] == LCD_CLEAR_PIXEL) {
 			erase_pixel(cmd[3], cmd[2]);
 		}
+		else if (cmd[1] == LCD_PUT_BYTE) {
+			put_byte(cmd[2],cmd[3], cmd[4]);
+		}
+		else if (cmd[1] == LCD_DEFINE_CUSTOM_CHARACTER) {
+					define_custom_character(cmd);
+				}
+
 
 		else if (cmd[1] == LCD_WRAP_ENABLE) {
 			//não achei comando definido talvez eu tenha que contar char na string e mudar o cursor eu mesmo...getStrWidth pode ajudar
@@ -200,6 +211,10 @@ void monitor_interrupt(void) {
 			} else if (*(cmd + offset) == LCD_CMD_END) {
 				is_cmd = !is_cmd;
 			}
+
+			if(!is_cmd && *(cmd + offset)>=1 && *(cmd + offset)<=10) {
+				custom_character_dealer(*(cmd + offset));
+			}
 		}
 		size = 0;
 		memset(cmd, 0, CMD_BUF_SIZE);
@@ -211,16 +226,4 @@ void monitor_begin(void) {
 	uint8_t i;
 	size = 0;
 	new_cmd = false;
-
-	/*	clear_display();
-	 test_font();
-	 clear_display();
-	 put_cursor();*/
-
-	//mensagem de inicialização
-	snprintf((char*) ans, CMD_BUF_SIZE, "hora do show!\r\n");
-	monitor_send_string(ans);
-	for (i = 0; i < strlen("hora do show!\r\n"); i++) {
-		ans[i] = '\0';
-	}
 }

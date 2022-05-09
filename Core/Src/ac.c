@@ -20,6 +20,7 @@
 #include "keypad_IH.h"
 
 extern SPI_HandleTypeDef hspi1;
+extern TIM_HandleTypeDef htim1;
 u8g2_t u8g2;
 
 uint8_t u8x8_stm32_gpio_and_delay(U8X8_UNUSED u8x8_t *u8x8,
@@ -65,7 +66,8 @@ uint8_t u8x8_byte_4wire_hw_spi(u8x8_t *u8x8, uint8_t msg, uint8_t arg_int,
 
 void Start_APP(void){
 	Kpd_Irqv_Init();
-
+	init_custom_character_db();
+	enable_backlight(true);
 	//	u8g2_Setup_uc1604_jlx19264_1(&u8g2, U8G2_R0, u8x8_byte_4wire_hw_spi,
 	//			u8x8_stm32_gpio_and_delay);
 
