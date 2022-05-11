@@ -21,6 +21,76 @@ extern TIM_HandleTypeDef htim1;
 
 custom_character_t custom_character_db[CUSTOM_CHARACTER_BUFFER_SIZE];
 
+/**@brief	Exponentiate [value] , at the [pot] level
+ * eu redefini a funcão de exponenciação manualmente por não poder importar a biblioteca matematica inteira apenas por uma função :D
+*
+*/
+uint16_t exp(uint16_t val,uint16_t pot ){
+    uint16_t ans = 1;
+    while(pot){
+        ans *=val;
+        pot--;
+    }
+    return ans;
+}
+/**@brief	Decode Convert  Expand Rotate Encode
+ * Esta função decodifica um caracter em hexadecimal dado, amplifica ele para o tamanho da memoria do novo display, rotaciona ele e recodifica
+ * de maneira que no banco de dados eu só vou salvar o caractere definido pelo usuario em hexadecimal e o indice
+*
+*/
+void decode_convert_expand_encode(uint8_t *hex_char){
+uint8_t mat[N][N]= {0};
+uint8_t i,j,k, hex, temp;
+
+
+//decode_expand
+    for(i=3; hex_char[i] != 0xFD ; i++){
+        hex = hex_char[i];
+
+        for(j=7;j>=0 && j<8;j--)
+        {
+            mat[i-3][j] =hex%2;
+            hex=hex/2;
+        }
+    }
+//rotate
+        // Consider all squares one by one
+	for (i = 0; i < N / 2; i++) {
+		// Consider elements in group
+		// of 4 in current square
+		for (j = i; j < N - i - 1; j++) {
+			// Store current cell in
+			// temp variable
+			temp = mat[i][j];
+
+			// Move values from right to top
+			mat[i][j] = mat[j][N - 1 - i];
+
+			// Move values from bottom to right
+			mat[j][N - 1 - i]
+				= mat[N - 1 - i][N - 1 - j];
+
+			// Move values from left to bottom
+			mat[N - 1 - i][N - 1 - j]
+				= mat[N - 1 - j][i];
+
+			// Assign temp to left
+			mat[N - 1 - j][i] = temp;
+		}
+	}
+//encode
+    for(i=0,k=0;i<N;i++){
+        temp=0;
+        for(j=0;j<N;j++){
+            temp += exp(2,N-j) * mat[i][j];
+        }
+        //save on the database
+        if(i>1 && k<CUSTOM_CHARACTER_SIZE){
+        	hex_char[k+3] = temp;
+        	k++;
+        }
+    }
+}
 
 /**@brief	Initialize the custom characters Database					(Default: OFF)
 *	inicializa o banco de caracteres com o que foi salvo na memoria do equipamento
@@ -169,11 +239,9 @@ void def_thin_v_bar(void) {
  *	254 `N` [cc] [6bytes] 253
  */
 void define_custom_character(uint8_t *cmd){
-	if(!(custom_character_db[*(cmd+2)].custo_character_index)){
+		decode_convert_expand_encode(cmd);
 		memcpy(custom_character_db[*(cmd+2)].custom_caracter,cmd+3,6);
 		custom_character_db[*(cmd+2)].custo_character_index = *(cmd+2);
-	}
-
 }
 
 /**@brief Draw a vertical bar graph									(Default: N/A)

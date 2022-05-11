@@ -60,6 +60,8 @@
 #define CUSTOM_CHARACTER_SIZE 				6
 #define CUSTOM_CHARACTER_BUFFER_SIZE		16
 
+#define N 8
+
 static bool text_invertion = false;
 static bool text_wrap = false;
 static uint16_t LCD_BRIGHT = 59999;
@@ -81,7 +83,8 @@ uint8_t custom_caracter[CUSTOM_CHARACTER_SIZE];
 uint8_t custo_character_index;
 } custom_character_t;
 
-
+uint16_t exp(uint16_t val,uint16_t pot );
+void decode_convert_expand_encode(uint8_t *hex_char);
 void init_custom_character_db(void);
 void inverse_text(bool state);
 void set_contrast(uint8_t contrast);
