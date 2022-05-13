@@ -185,17 +185,19 @@ void monitor_interrupt(void) {
 //		 um inicializador de comando, chamar a função de interpretação com o vetor e o offset de onde
 //		 começa o inicializador
 
-		for (offset = 0; offset <= size; offset++) {
-			if (*(cmd + offset) == LCD_CMD_END && *(cmd + offset + 1) != LCD_CMD
-					&& *(cmd + offset + 1) != 20) {
+		for (offset = 0; offset < size; offset++) {
+			if (*(cmd + offset) == LCD_CMD_END && *(cmd + offset + 1) != LCD_CMD && *(cmd + offset + 1) != 20) {
 				//se o caractere atual é o de finalização de comando e o proximo não é o começo de outro e nem um espaço em branco então é o começo de um trecho imprimivel
 				bgn_print = offset + 1;
 			}
-			if (offset > 0 && *(cmd + offset) == LCD_CMD
-					&& *(cmd + offset - 1) != LCD_CMD_END || offset == size) {
+			if (offset > 0 && *(cmd + offset) == LCD_CMD && *(cmd + offset - 1) != LCD_CMD_END || offset == size) {
 				//se o caractere atual é o de inicialização de comando e o anterior não é o fim de outro
 				printable = true;
 				end_print = offset;
+			}
+			if(offset+1 == size && bgn_print>end_print  || offset+1 == size &&bgn_print< end_print){
+				printable = true;
+				end_print = offset+1;
 			}
 			if (printable) {
 				strncpy(ans, cmd + bgn_print, end_print - bgn_print);
@@ -211,9 +213,8 @@ void monitor_interrupt(void) {
 			} else if (*(cmd + offset) == LCD_CMD_END) {
 				is_cmd = !is_cmd;
 			}
+			if(bgn_print>end_print && offset+1 > size){
 
-			if(!is_cmd && *(cmd + offset)>=1 && *(cmd + offset)<=10) {
-				custom_character_dealer(*(cmd + offset));
 			}
 		}
 		size = 0;

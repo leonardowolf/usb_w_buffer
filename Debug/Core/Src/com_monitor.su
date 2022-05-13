@@ -3,4 +3,4 @@
 ../Core/Src/com_monitor.c:38:6:monitor_check_cmd	24	static
 ../Core/Src/com_monitor.c:163:6:app_usb_cbk	16	static
 ../Core/Src/com_monitor.c:176:6:monitor_interrupt	16	static
-../Core/Src/com_monitor.c:225:6:monitor_begin	4	static
+../Core/Src/com_monitor.c:226:6:monitor_begin	4	static

@@ -61,6 +61,8 @@
 #define CUSTOM_CHARACTER_BUFFER_SIZE		16
 
 #define N 8
+#define MASK_BUFFER 105
+
 
 static bool text_invertion = false;
 static bool text_wrap = false;
@@ -107,6 +109,8 @@ void draw_v_bar_graph(uint8_t col, uint8_t height);
 void erase_v_bar_graph(uint8_t col, uint8_t height);
 void draw_h_bar_graph(uint8_t col, uint8_t row, uint8_t lenght);
 void str_warper(txt_wrap_t *wrap, uint8_t *txt);
-void custom_character_dealer(uint8_t index);
+void custom_character_dealer( uint8_t *txt);
+bool Custom_Character_masker(uint8_t *txt,uint8_t * mask, uint8_t *v_cursor);
+void clean_it(uint8_t *str);
 
 #endif /* INC_CWLIBX_H_ */

@@ -44,8 +44,8 @@ uint8_t i,j,k, hex, temp;
 
 
 //decode_expand
-    for(i=3; hex_char[i] != 0xFD ; i++){
-        hex = hex_char[i];
+    for(i=3; *(hex_char+i) != 0xFD ; i++){
+        hex = *(hex_char+i);
 
         for(j=7;j>=0 && j<8;j--)
         {
@@ -577,21 +577,67 @@ void test_font(void) {
 	lcd_print("    XCoder v3.0");
 	u8g2_SendBuffer(&u8g2);
 }
+bool Custom_Character_masker(uint8_t *txt,uint8_t * mask, uint8_t *v_cursor){
+	uint8_t index;
+	bool enable;
+	strncpy(mask,txt,MASK_BUFFER);
+	*(mask+MASK_BUFFER-1) = '\0';
+
+	*(v_cursor+0) = cursor[0];
+	*(v_cursor+1) = cursor[1];
+
+	for(index=0;*(mask+index) != '\0';index++){
+		if(*(mask+index)>=0 && *(mask+index)<=16){
+			*(mask+index) =32;
+			enable = true;
+		}
+	}
+return enable;
+}
+void clean_it(uint8_t *str){
+	memset(str, 0, sizeof(str));
+}
+void custom_character_dealer( uint8_t *txt){
+	uint8_t char_w = 8;
+	uint8_t char_h = 6;
+	uint8_t offset,temp_x,temp_y,index;
+	temp_x = cursor[0];
+	temp_y = cursor[1];
+	for(offset = 0;*(txt+offset) !='\0';offset++){
+		index = *(txt+offset);
+		if((custom_character_db[index].custo_character_index)){
+				u8g2_DrawXBM(&u8g2 , temp_x, temp_y+4, char_w, char_h, custom_character_db[index].custom_caracter);
+				u8g2_SendBuffer(&u8g2);
+				temp_x += u8g2_GetMaxCharWidth(&u8g2);
+				//trocando os caracteres especiais por um espaço em branco pra bater com a conta de espaço em tela
+				//é um custom caracter
+				//ele foi definido pelo usuario
+				//ele deve ser impresso
+			}else{
+				temp_x += u8g2_GetMaxCharWidth(&u8g2);
+			}
+	}
+
+}
+
 
 void lcd_print(uint8_t *txt) {
 	txt_wrap_t wrap;
 	uint8_t aux = 0, i;
-	bool clean_it = false;
+	uint8_t v_cursor[2];
+	uint8_t mask[MASK_BUFFER];
+	bool enable;
+
 
 	if (text_invertion) {
 		if (text_wrap) {
 			str_warper(&wrap, txt);
 			for (aux = 0; aux <= wrap.wrap_times; aux++) {
 				//cursor[1] = (aux * u8g2_GetMaxCharHeight(&u8g2));
+
 				u8g2_DrawButtonUTF8(&u8g2, cursor[0], cursor[1], U8G2_BTN_INV,
 						0, 0, 0, wrap.wrap_str[aux]);
 				u8g2_SendBuffer(&u8g2);
-				clean_it = !clean_it;
 				/*	if (u8g2_GetStrWidth(&u8g2,
 				 wrap.wrap_str[aux - 1]) > u8g2_GetDisplayWidth(&u8g2)) {
 				 cursor[1] = (aux * u8g2_GetMaxCharHeight(&u8g2));
@@ -601,7 +647,9 @@ void lcd_print(uint8_t *txt) {
 				 wrap.wrap_str[aux - 1]);
 				 }*/
 			}
+			clean_it(wrap.wrap_str);
 		} else {
+
 			u8g2_DrawButtonUTF8(&u8g2, cursor[0], cursor[1], U8G2_BTN_INV, 0, 0,
 					0, txt);
 			u8g2_SendBuffer(&u8g2);
@@ -614,15 +662,23 @@ void lcd_print(uint8_t *txt) {
 			str_warper(&wrap, txt);
 			if (wrap.wrap_times) {
 				for (aux = 0; aux <= wrap.wrap_times; aux++) {
-					u8g2_DrawUTF8(&u8g2, cursor[0], cursor[1],
-							wrap.wrap_str[aux]);
+					clean_it(mask);
+					enable = Custom_Character_masker(wrap.wrap_str[aux],mask,v_cursor);
+//					u8g2_DrawUTF8(&u8g2, cursor[0], cursor[1],wrap.wrap_str[aux]);
+					u8g2_DrawUTF8(&u8g2, v_cursor[0], v_cursor[1], mask);
 					u8g2_SendBuffer(&u8g2);
+					if(enable){
+						custom_character_dealer(wrap.wrap_str[aux]);
+					}
+
 
 					cursor[1] += (u8g2_GetMaxCharHeight(&u8g2)) - ESP_ENTRE_LINHAS;
 
-					clean_it = !clean_it;
+
 				}
+				clean_it(wrap.wrap_str);
 			} else {
+
 				u8g2_DrawUTF8(&u8g2, cursor[0], cursor[1], txt);
 				u8g2_SendBuffer(&u8g2);
 			}
@@ -635,31 +691,15 @@ void lcd_print(uint8_t *txt) {
 			 cursor[0] += u8g2_GetStrWidth(&u8g2, wrap.wrap_str[aux - 1]);
 			 }*/
 		} else {
-			u8g2_DrawUTF8(&u8g2, cursor[0], cursor[1], txt);
+			enable = Custom_Character_masker(txt,mask,v_cursor);
+			u8g2_DrawUTF8(&u8g2, v_cursor[0], v_cursor[1], mask);
 			u8g2_SendBuffer(&u8g2);
-
+			if(enable){
+				custom_character_dealer(txt);
+			}
 			cursor[0] += u8g2_GetStrWidth(&u8g2, txt);
 		}
 	}
-	if (clean_it) {
-
-		memset(wrap.wrap_str, 0, sizeof(wrap.wrap_str));
-		clean_it = !clean_it;
-
-	}
 }
 
-void custom_character_dealer(uint8_t index){
-	uint8_t char_w = 8;
-	uint8_t char_h = 6;
-	if((custom_character_db[index].custo_character_index)){
-		u8g2_DrawXBM(&u8g2 , cursor[0], cursor[1], char_w, char_h, custom_character_db[index].custom_caracter);
-		u8g2_SendBuffer(&u8g2);
-		cursor[0] += u8g2_GetMaxCharWidth(&u8g2);
-
-		//é um custom caracter
-		//ele foi definido pelo usuario
-		//ele deve ser impresso
-	}
-}
 
