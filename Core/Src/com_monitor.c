@@ -145,17 +145,25 @@ void monitor_check_cmd(char *cmd, uint32_t size) {
 		}
 
 		else if (cmd[1] == LCD_DRAW_VERTICAL_BAR_GRAPH) {
-			draw_v_bar_graph(cmd[2], cmd[3]);
+			draw_un_v_bar_graph(cmd[2], cmd[3], false);
 		}
 
-		else if (cmd[1] == LCD_DRAW_VERTICAL_BAR_GRAPH) {
-
-			erase_v_bar_graph(cmd[2], cmd[3]);
+		else if (cmd[1] == LCD_ERASE_VERTICAL_BAR_GRAPH ) {
+			draw_un_v_bar_graph(cmd[2], cmd[3], true);
+		}
+		else if (cmd[1] == LCD_UNDERLINE_CURSOR_ON) {
+			put_Ucursor(true,cmd[2], cmd[3],0);
+		}
+		else if (cmd[1] == LCD_UNDERLINE_CURSOR_OFF) {
+			put_Ucursor(false,cmd[2], cmd[3],0);
+		}
+		else if (cmd[1] == LCD_MOVE_CURSOR_LEFT ) {
+			put_Ucursor(true,cmd[2], cmd[3],'L');
+		}
+		else if (cmd[1] == LCD_MOVE_CURSOR_RIGHT ) {
+			put_Ucursor(true,cmd[2], cmd[3],'R');
 		}
 
-		else if (cmd[1] == LCD_DRAW_HORIZONTAL_BAR_GRAPH) {
-			draw_h_bar_graph(cmd[2], cmd[3], cmd[4]);
-		}
 
 	}
 }

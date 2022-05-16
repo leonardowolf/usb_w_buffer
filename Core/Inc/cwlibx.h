@@ -18,7 +18,7 @@
 #define display_w 							192
 #define display_h 							64
 
-
+#define LCD_ERASE_VERTICAL_BAR_GRAPH 		45
 #define LCD_MODEL_NUMBER					48
 #define LCD_FIRMWARE_NUMBER					49
 #define LCD_INIT_CHINESE_S  				55
@@ -101,12 +101,11 @@ void erase_pixel(uint8_t x, uint8_t y);
 void put_byte(uint8_t x, uint8_t row, uint8_t byte);
 void define_custom_character(uint8_t *cmd);
 void disp_splash(void);
-void put_cursor(void);
+void put_Ucursor(bool enable,uint8_t col, uint8_t row,uint8_t hoover );
 void lcd_print(uint8_t *txt);
 void def_thin_v_bar(void);
 void def_thick_v_bar(void);
-void draw_v_bar_graph(uint8_t col, uint8_t height);
-void erase_v_bar_graph(uint8_t col, uint8_t height);
+void draw_un_v_bar_graph(uint8_t col, uint8_t height, bool erase);
 void draw_h_bar_graph(uint8_t col, uint8_t row, uint8_t lenght);
 void str_warper(txt_wrap_t *wrap, uint8_t *txt);
 void custom_character_dealer( uint8_t *txt);

@@ -125,7 +125,7 @@ void auto_line_wrap(bool enable) {
 }
 
 /**@brief	auto scroll 												(Default: OFF)
- *	desloca todo o display em uma linha para abrir espaço para a ultima linha
+ *	desloca t0do o display em uma linha para abrir espaço para a ultima linha
  *	-on
  *	habilita
  *		FE 51 FD
@@ -171,25 +171,46 @@ void text_insertion_point(uint8_t col, uint8_t row) {
  *		FE 4B FD
  *		254 75 253
  *		254 `K` 253
+ *
+ *		vars:
+ *		>enable habilita o cursor na tela na dada posição (true imprime, false apaga);
+ *		>col :  coluna do display onde o cursor deve ser posicionado, onde coluna é relativa ao display dividido em unidades de caractere
+ *		>row :  linha na qual o cursor deve ser posicionado considerando row como a altura do displau em função de unidades de caractere
+ *		>hoover :  variavel de deslocamento, pode ser 0, quando não há deslocamento, R para deslocamento de uma unidade para a direita e
+ *	L para deslo camento de uma unidade para a esquerda
+ *
+ *
+ *	Bug conhecido/possivel
+ *	caso o usuario utiluze a função de apagar o cursor, sem antes telo escrito, o codigo vai de fato criar um cursor em uma posição lixo
+ *	de memoria tanto para linha quanto para coluna
  */
-void underline_cursor(uint8_t col, uint8_t row, uint8_t state);
 
-/**@brief Cursor														(Default: N/A)
- *	função de deslocamento posicional do cursor underline
- *	-left
- *	desloca o cursor underline para a esquerda, se o cursor encontra o começo da linha
- *	ele se deslocará para o fim da mesma
- *		FE 4C FD
- *		254 76 253
- *		254 `L` 253
- *	-right
- *	desloca o cursor underline para a direita, se o cursor encontra o fim da linha ele
- * 	se deslocará para o início da mesma
- *		FE 4D FD
- *		254 77 253
- *		254 `M` 253
- */
-void cursor_position(uint8_t side);
+
+void put_Ucursor(bool enable,uint8_t col, uint8_t row,uint8_t hoover) {
+	static uint8_t ucursor[2];
+	u8g2_SetDrawColor(&u8g2, 2);
+	if(enable){
+		if(hoover){
+			if(hoover == 'R'){
+				u8g2_DrawFrame(&u8g2,ucursor[0], ucursor[1],u8g2_GetMaxCharWidth(&u8g2) , 1);
+				ucursor[0] = (ucursor[0] + u8g2_GetMaxCharWidth(&u8g2)) >  u8g2_GetDisplayWidth(&u8g2) - u8g2_GetMaxCharWidth(&u8g2) ? 0 : ucursor[0] + u8g2_GetMaxCharWidth(&u8g2);
+				u8g2_DrawFrame(&u8g2,ucursor[0], ucursor[1],u8g2_GetMaxCharWidth(&u8g2) , 1);
+			}else{
+				u8g2_DrawFrame(&u8g2,ucursor[0], ucursor[1],u8g2_GetMaxCharWidth(&u8g2) , 1);
+				ucursor[0] = (ucursor[0] - u8g2_GetMaxCharWidth(&u8g2)) < 0 ? u8g2_GetDisplayWidth(&u8g2) - u8g2_GetMaxCharWidth(&u8g2) : ucursor[0] - u8g2_GetMaxCharWidth(&u8g2);
+				u8g2_DrawFrame(&u8g2,ucursor[0], ucursor[1],u8g2_GetMaxCharWidth(&u8g2) , 1);
+			}
+		} else{
+			ucursor[0] = col*u8g2_GetMaxCharWidth(&u8g2);
+			ucursor[1] = (row+1)*u8g2_GetMaxCharWidth(&u8g2)+2;
+			u8g2_DrawFrame(&u8g2,ucursor[0], ucursor[1],u8g2_GetMaxCharWidth(&u8g2) , 1);
+		}
+	}else{
+		u8g2_DrawFrame(&u8g2,ucursor[0], ucursor[1],u8g2_GetMaxCharWidth(&u8g2) , 1);
+	}
+	u8g2_SendBuffer(&u8g2);
+	u8g2_SetDrawColor(&u8g2, 1);
+}
 
 /**@brief Inverse Text												(Default: OFF)
  *	comando de inversão de texto, o fundo do texto passa a ser de pixels ativos e o texto
@@ -205,6 +226,10 @@ void cursor_position(uint8_t side);
  *		254 103 253
  *		254 `g` 253
  */
+void test_font(void) {
+	lcd_print("    XCoder v3.0");
+	u8g2_SendBuffer(&u8g2);
+}
 void inverse_text(bool state) {
 	text_invertion = state;
 }
@@ -251,25 +276,34 @@ void define_custom_character(uint8_t *cmd){
  *	254 61 [col] [height] 253
  *	254 `=` [col] [height] 253
  */
-void draw_v_bar_graph(uint8_t col, uint8_t height) {
-	cursor[0] = col * u8g2_GetMaxCharWidth(&u8g2);
+void draw_un_v_bar_graph(uint8_t col, uint8_t height, bool erase) {
+	static uint8_t vcursor, temp_height = 65;
 
-	u8g2_DrawBox(&u8g2, cursor[0], cursor[1], vertical_bar_width, height);
+	vcursor = col*u8g2_GetMaxCharWidth(&u8g2);
+	height = u8g2_GetDisplayHeight(&u8g2) - height*2;
+
+
+
+	if(!erase){
+		if(height < temp_height){
+			u8g2_SetDrawColor(&u8g2, 1);
+			u8g2_DrawBox(&u8g2, vcursor, height, vertical_bar_width, u8g2_GetDisplayHeight(&u8g2));
+			temp_height = height;
+		}else{
+			u8g2_SetDrawColor(&u8g2, 1);
+			u8g2_DrawBox(&u8g2, 0, 0, vertical_bar_width, u8g2_GetDisplayHeight(&u8g2));
+		}
+
+	}else{
+
+
+	}
+	u8g2_SetDrawColor(&u8g2, 1);
 	u8g2_SendBuffer(&u8g2);
+
 }
 
-/**@brief Erase a vertical bar graph									(Default: N/A)
- *	Apaga a barra vertical na ultima linha da coluna [col]  com altura [height],
- *	com height	variando [[0x00] a [0x20]] (0 a 32)
- *	FE 2D [col] [height] FD
- * 	254 45 [col] [height] 253
- *	254 `-` [col] [height] 253
- */
-void erase_v_bar_graph(uint8_t col, uint8_t height) {
-	cursor[0] = col * u8g2_GetMaxCharWidth(&u8g2);
-	u8g2_DrawBox(&u8g2, cursor[0], cursor[1], vertical_bar_width, height);
-	u8g2_SendBuffer(&u8g2);
-}
+
 
 /**@brief Draw a horizontal bar graph									(Default: N/A)
  *	Desenha uma coluna vertical na ultima linha da coluna [col] de altura [height], com [height]
@@ -569,14 +603,7 @@ void str_warper(txt_wrap_t *wrap, uint8_t *txt) {
 	}
 }
 
-void put_cursor(void) {
-	lcd_print("_");
-	u8g2_SendBuffer(&u8g2);
-}
-void test_font(void) {
-	lcd_print("    XCoder v3.0");
-	u8g2_SendBuffer(&u8g2);
-}
+
 bool Custom_Character_masker(uint8_t *txt,uint8_t * mask, uint8_t *v_cursor){
 	uint8_t index;
 	bool enable;
