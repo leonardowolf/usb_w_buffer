@@ -33,6 +33,24 @@ uint16_t exp(uint16_t val,uint16_t pot ){
     }
     return ans;
 }
+
+static void init_custom_gpio_ports(GPIO_TypeDef *GPIOx, uint16_t pin, uint8_t mode,uint8_t pull){
+
+	  GPIO_InitTypeDef GPIO_InitStruct = {0};
+	  __HAL_RCC_GPIOC_CLK_ENABLE();
+
+	  /*Configure GPIO pin : PC13 */
+	   GPIO_InitStruct.Pin = pin;
+	   GPIO_InitStruct.Mode = mode;
+	   GPIO_InitStruct.Pull = pull;
+	   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
+	   HAL_GPIO_Init(GPIOx, &GPIO_InitStruct);
+
+	   if(GPIO_InitStruct.Mode == GPIO_MODE_OUTPUT_PP){
+		   HAL_GPIO_WritePin(GPIOx, pin, GPIO_PIN_RESET);
+	   }
+}
+
 /**@brief	Decode Convert  Expand Rotate Encode
  * Esta função decodifica um caracter em hexadecimal dado, amplifica ele para o tamanho da memoria do novo display, rotaciona ele e recodifica
  * de maneira que no banco de dados eu só vou salvar o caractere definido pelo usuario em hexadecimal e o indice
@@ -242,18 +260,18 @@ void inverse_text(bool state) {
  *	254 118 253
  *	254 `v` 253
  */
-void def_thick_v_bar(void) {
-	vertical_bar_width = 5;
-}
-
 /**@brief Inithialize thin vertical bar graph							(Default: OFF)
  * 	Define a barra vertical como com 2px de largura
  *	FE 73 FD
  *	254 115 253
  *	254 `s` 253
  */
-void def_thin_v_bar(void) {
-	vertical_bar_width = 2;
+void def_v_bar_thickness(uint8_t thick){
+	if(thick){
+		vertical_bar_width = 10;//5 no original
+	}else{
+		vertical_bar_width = 4;//2 no original
+	}
 }
 
 /**@brief Define a custom caracter									(Default: N/A)
@@ -293,7 +311,6 @@ void draw_un_v_bar_graph(uint8_t col, uint8_t height, bool erase) {
 			u8g2_SetDrawColor(&u8g2, 1);
 			u8g2_DrawBox(&u8g2, 0, 0, vertical_bar_width, u8g2_GetDisplayHeight(&u8g2));
 		}
-
 	}else{
 
 

@@ -136,12 +136,11 @@ void monitor_check_cmd(char *cmd, uint32_t size) {
 		}
 
 		else if (cmd[1] == LCD_DEF_THICK_VERTICAL_BAR) {
-			def_thick_v_bar();
+			def_v_bar_thickness(1);
 		}
 
 		else if (cmd[1] == LCD_DEF_THIN_VERTICAL_BAR) {
-			def_thin_v_bar();
-
+			def_v_bar_thickness(0);
 		}
 
 		else if (cmd[1] == LCD_DRAW_VERTICAL_BAR_GRAPH) {

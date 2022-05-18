@@ -46,7 +46,7 @@ TIM_HandleTypeDef htim1;
 TIM_HandleTypeDef htim2;
 
 /* USER CODE BEGIN PV */
-
+//const uint32_t image_default[64] __attribute__((__section__(".img_def"))) = {0};
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -98,6 +98,7 @@ int main(void)
   MX_TIM1_Init();
   /* USER CODE BEGIN 2 */
   Start_APP();
+//  image_default[0] = 1;
   /* USER CODE END 2 */
 
   /* Infinite loop */
@@ -315,6 +316,8 @@ static void MX_TIM2_Init(void)
   /* USER CODE END TIM2_Init 2 */
 
 }
+
+
 
 /**
   * @brief GPIO Initialization Function

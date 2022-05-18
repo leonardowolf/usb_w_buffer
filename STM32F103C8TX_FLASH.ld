@@ -44,9 +44,14 @@ _Min_Stack_Size = 0x400 ; /* required amount of stack */
 /* Memories definition */
 MEMORY
 {
-  RAM    (xrw)    : ORIGIN = 0x20000000,   LENGTH = 20K
-  FLASH    (rx)    : ORIGIN = 0x8000000,   LENGTH = 64K
+  RAM    (xrw)    	: ORIGIN = 0x20000000,   LENGTH = 20K
+  FLASH    (rx)    	: ORIGIN = 0x8000000,   LENGTH = 60K
+  IMG_DEF  (rx)  	: ORIGIN = 0x0800F000,   LENGTH = 2K
+  IMG_CUST (rx)  	: ORIGIN = 0x0800F800,   LENGTH = 2K
 }
+/*
+original memory size
+FLASH    (rx)    : ORIGIN = 0x8000000,   LENGTH = 64K*/
 
 /* Sections */
 SECTIONS
@@ -58,7 +63,13 @@ SECTIONS
     KEEP(*(.isr_vector)) /* Startup code */
     . = ALIGN(4);
   } >FLASH
-
+/*minha seção de memoria restrita para a imagem default*/
+	.img_def :
+	  {
+	    . = ALIGN(4);
+	    KEEP(*(.img_def*))
+	  } >IMG_DEF
+  
   /* The program code and other data into "FLASH" Rom type memory */
   .text :
   {
