@@ -155,6 +155,12 @@ void monitor_check_cmd(char *cmd, uint32_t size) {
 		else if (cmd[1] == LCD_ERASE_VERTICAL_BAR_GRAPH ) {
 			draw_un_v_bar_graph(cmd[2], cmd[3], true);
 		}
+		else if (cmd[1] == LCD_DRAW_HORIZONTAL_BAR_GRAPH ) {
+			draw_un_h_bar_graph(cmd[2], cmd[3], cmd[4],false);
+		}
+		else if (cmd[1] == LCD_ERASE_HORIZONTAL_BAR_GRAPH ) {
+			draw_un_h_bar_graph(cmd[2], cmd[3], cmd[4],true);
+		}
 		else if (cmd[1] == LCD_UNDERLINE_CURSOR_ON) {
 			put_Ucursor(true,cmd[2], cmd[3],0);
 		}

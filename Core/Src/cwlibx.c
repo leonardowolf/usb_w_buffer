@@ -322,23 +322,6 @@ void draw_un_v_bar_graph(uint8_t col, uint8_t height, bool erase) {
 }
 
 
-
-/**@brief Draw a horizontal bar graph									(Default: N/A)
- *	Desenha uma coluna vertical na ultima linha da coluna [col] de altura [height], com [height]
- *	variando de [[0x00] a [0x7A]] (0 a 122)
- *	FE 7C [cc] [height] FD
- *	254 124 [cc] [height] 253
- *	254 `|` [cc] [height] 253
- */
-void draw_h_bar_graph(uint8_t col, uint8_t row, uint8_t lenght) {
-	cursor[0] = (col) * u8g2_GetMaxCharHeight(&u8g2);
-	cursor[1] = (row) * u8g2_GetMaxCharWidth(&u8g2);
-	u8g2_DrawBox(&u8g2, cursor[0], cursor[1], lenght,
-			u8g2_GetMaxCharHeight(&u8g2));
-	u8g2_SendBuffer(&u8g2);
-	//u8g2_DrawVLine(&u8g2, col, u8g2_uint_t y, u8g2_uint_t h);
-}
-
 /**@brief Erase a horizontal bar graph									(Default: N/A)
  *	Apaga a barra horizontal na coluna [col] da linha [row] com largura [length]
  *	onde length varia [[0x00] to [0x7A]] (0 a 122)
@@ -346,7 +329,30 @@ void draw_h_bar_graph(uint8_t col, uint8_t row, uint8_t lenght) {
  *	254 45 [col] [row] 253
  *	254 `-` [col] [row] 253
  */
-void erase_h_bar(uint8_t col, uint8_t height);
+/**@brief Draw a horizontal bar graph									(Default: N/A)
+ *	Desenha uma coluna vertical na ultima linha da coluna [col] de altura [height], com [height]
+ *	variando de [[0x00] a [0x7A]] (0 a 122)
+ *	FE 7C [cc] [height] FD
+ *	254 124 [cc] [height] 253
+ *	254 `|` [cc] [height] 253
+ */
+void draw_un_h_bar_graph(uint8_t col, uint8_t row, uint8_t lenght , bool erase) {
+	if(!erase){
+		u8g2_DrawBox(&u8g2, (col) * u8g2_GetMaxCharWidth(&u8g2), (row) * u8g2_GetMaxCharHeight(&u8g2), lenght * 2,
+		u8g2_GetMaxCharHeight(&u8g2)-3);
+
+	}else{
+		u8g2_SetDrawColor(&u8g2, 0);
+		u8g2_DrawBox(&u8g2, (col) * u8g2_GetMaxCharWidth(&u8g2), (row) * u8g2_GetMaxCharHeight(&u8g2), lenght * 2,
+				u8g2_GetMaxCharHeight(&u8g2)-3);
+
+	}
+	u8g2_SetDrawColor(&u8g2, 1);
+	u8g2_SendBuffer(&u8g2);
+}
+
+
+
 
 /**@brief Put pixel													(Default: N/A)
  *	Desenha um pixel na posição (x,y). X varia de 0-121 e y varia 0-31

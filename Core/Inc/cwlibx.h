@@ -18,6 +18,7 @@
 #define display_w 							192
 #define display_h 							64
 
+#define LCD_ERASE_HORIZONTAL_BAR_GRAPH 		43
 #define LCD_ERASE_VERTICAL_BAR_GRAPH 		45
 #define LCD_MODEL_NUMBER					48
 #define LCD_FIRMWARE_NUMBER					49
@@ -105,7 +106,7 @@ void put_Ucursor(bool enable,uint8_t col, uint8_t row,uint8_t hoover );
 void lcd_print(uint8_t *txt);
 void def_v_bar_thickness(uint8_t thick);
 void draw_un_v_bar_graph(uint8_t col, uint8_t height, bool erase);
-void draw_h_bar_graph(uint8_t col, uint8_t row, uint8_t lenght);
+void draw_un_h_bar_graph(uint8_t col, uint8_t row, uint8_t lenght , bool erase);
 void str_warper(txt_wrap_t *wrap, uint8_t *txt);
 void custom_character_dealer( uint8_t *txt);
 bool Custom_Character_masker(uint8_t *txt,uint8_t * mask, uint8_t *v_cursor);
