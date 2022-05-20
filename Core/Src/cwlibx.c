@@ -13,6 +13,7 @@
 #include "ac.h"
 #include "logo_defs.h"
 #include "cwlibx.h"
+#include "flash_manipulation.h"
 
 extern u8g2_t u8g2;
 extern TIM_HandleTypeDef htim1;
@@ -295,7 +296,7 @@ void define_custom_character(uint8_t *cmd){
  *	254 `=` [col] [height] 253
  */
 void draw_un_v_bar_graph(uint8_t col, uint8_t height, bool erase) {
-	static uint8_t vcursor, temp_height = 65;
+	static uint8_t vcursor, temp_height = 200 , temp_col=200;
 
 	vcursor = col*u8g2_GetMaxCharWidth(&u8g2);
 	height = u8g2_GetDisplayHeight(&u8g2) - height*2;
@@ -303,19 +304,19 @@ void draw_un_v_bar_graph(uint8_t col, uint8_t height, bool erase) {
 
 
 	if(!erase){
-		if(height < temp_height){
-			u8g2_SetDrawColor(&u8g2, 1);
-			u8g2_DrawBox(&u8g2, vcursor, height, vertical_bar_width, u8g2_GetDisplayHeight(&u8g2));
-			temp_height = height;
-		}else{
-			u8g2_SetDrawColor(&u8g2, 1);
-			u8g2_DrawBox(&u8g2, 0, 0, vertical_bar_width, u8g2_GetDisplayHeight(&u8g2));
-		}
+		u8g2_SetDrawColor(&u8g2, 0);
+		u8g2_DrawBox(&u8g2, temp_col, temp_height, vertical_bar_width, u8g2_GetDisplayHeight(&u8g2));
+		u8g2_SetDrawColor(&u8g2, 1);
+		u8g2_DrawBox(&u8g2, vcursor, height, vertical_bar_width, u8g2_GetDisplayHeight(&u8g2));
+
+		temp_height = height;
+		temp_col = vcursor;
+
 	}else{
-
-
+		u8g2_SetDrawColor(&u8g2, 0);
+		u8g2_DrawBox(&u8g2, vcursor, height, vertical_bar_width, u8g2_GetDisplayHeight(&u8g2));
 	}
-	u8g2_SetDrawColor(&u8g2, 1);
+
 	u8g2_SendBuffer(&u8g2);
 
 }

@@ -24,9 +24,14 @@ uint32_t size;
 bool new_cmd;
 
 void monitor_send_string(uint8_t *buf) {
-	while (CDC_Transmit_FS(cmd, strlen(buf)) == USBD_OK)
-		;
+	uint8_t RxBuf[3];
+	while (CDC_Transmit_FS(buf, strlen(buf)) == USBD_OK);
 	//isso é a melhor forma de try til it works que eu consegui pensar
+/*	buf[2] = '\0';
+	Flash_Read_Data (0x800f800, RxBuf, 2);
+	Flash_Write_Data (0x800f800, buf, 2);
+	RxBuf[2] = '\0';
+	while (CDC_Transmit_FS(RxBuf, strlen(RxBuf)) == USBD_OK);*/
 }
 
 void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim) {
@@ -208,7 +213,8 @@ void monitor_interrupt(void) {
 			}
 			if (printable) {
 				strncpy(ans, cmd + bgn_print, end_print - bgn_print);
-				CDC_Transmit_FS(ans, end_print - bgn_print);
+				monitor_send_string(ans);
+//				CDC_Transmit_FS(ans, end_print - bgn_print);
 				lcd_print(ans);
 				memset(ans, 0, ANS_BUF_SIZE);
 				printable = !printable;
