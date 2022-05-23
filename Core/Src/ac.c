@@ -67,6 +67,7 @@ uint8_t u8x8_byte_4wire_hw_spi(u8x8_t *u8x8, uint8_t msg, uint8_t arg_int,
 void Start_APP(void){
 	Kpd_Irqv_Init();
 	init_custom_character_db();
+	gpio_custom_init();
 	enable_backlight(true);
 	//	u8g2_Setup_uc1604_jlx19264_1(&u8g2, U8G2_R0, u8x8_byte_4wire_hw_spi,
 	//			u8x8_stm32_gpio_and_delay);

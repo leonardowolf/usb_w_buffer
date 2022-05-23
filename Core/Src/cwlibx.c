@@ -18,9 +18,9 @@
 extern u8g2_t u8g2;
 extern TIM_HandleTypeDef htim1;
 
-#define delay_betwen_cmds 50 //tempo de descanso entre comandos
 
 custom_character_t custom_character_db[CUSTOM_CHARACTER_BUFFER_SIZE];
+volatile gpio_db s_pins[4];
 
 /**@brief	Exponentiate [value] , at the [pot] level
  * eu redefini a funcão de exponenciação manualmente por não poder importar a biblioteca matematica inteira apenas por uma função :D
@@ -34,22 +34,99 @@ uint16_t exp(uint16_t val,uint16_t pot ){
     }
     return ans;
 }
+void gpio_custom_init(void){
+	/* 0  ,   1 ,   2 ,  3  */
+	/*PB12, PB13, PB14, PB15*/
+	s_pins[0].GPIOx = GPIOB;
+	s_pins[0].pin = GPIO_PIN_12;
+	s_pins[0].is_init = false;
+	s_pins[0].dir='?';
 
-static void init_custom_gpio_ports(GPIO_TypeDef *GPIOx, uint16_t pin, uint8_t mode,uint8_t pull){
+	s_pins[1].GPIOx = GPIOB;
+	s_pins[1].pin = GPIO_PIN_13;
+	s_pins[1].is_init = false;
+	s_pins[1].dir='?';
 
+	s_pins[2].GPIOx = GPIOB;
+	s_pins[2].pin = GPIO_PIN_14;
+	s_pins[2].is_init = false;
+	s_pins[2].dir='?';
+
+	s_pins[3].GPIOx = GPIOB;
+	s_pins[3].pin = GPIO_PIN_15;
+	s_pins[3].is_init = false;
+	s_pins[3].dir='?';
+}
+
+void init_custom_gpio_ports(GPIO_TypeDef *GPIOx, uint16_t pin, uint8_t mode,uint8_t pull){
 	  GPIO_InitTypeDef GPIO_InitStruct = {0};
 	  __HAL_RCC_GPIOC_CLK_ENABLE();
 
-	  /*Configure GPIO pin : PC13 */
-	   GPIO_InitStruct.Pin = pin;
-	   GPIO_InitStruct.Mode = mode;
-	   GPIO_InitStruct.Pull = pull;
-	   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
-	   HAL_GPIO_Init(GPIOx, &GPIO_InitStruct);
+	  if(mode == GPIO_MODE_OUTPUT_PP){
+		  /*output */
+		   GPIO_InitStruct.Pin = pin;
+		   GPIO_InitStruct.Mode = mode;
+		   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
+	  }else{
+		  /*imput */
+		   GPIO_InitStruct.Pin = pin;
+		   GPIO_InitStruct.Mode = mode;
+	  }
+	  GPIO_InitStruct.Pull = pull;
+	  HAL_GPIO_Init(GPIOx, &GPIO_InitStruct);
+}
+void gpio_handler(uint8_t function, uint16_t pin){
 
-	   if(GPIO_InitStruct.Mode == GPIO_MODE_OUTPUT_PP){
-		   HAL_GPIO_WritePin(GPIOx, pin, GPIO_PIN_RESET);
-	   }
+uint8_t mode;
+int8_t pull;
+
+
+//is init
+if(!s_pins[pin].is_init){
+	if(function == LCD_GPO_ON){
+		mode = GPIO_MODE_OUTPUT_PP;
+		pull = GPIO_NOPULL;
+		s_pins[pin].is_init = true;
+
+		init_custom_gpio_ports(s_pins[pin].GPIOx, s_pins[pin].pin, GPIO_MODE_OUTPUT_PP,GPIO_NOPULL);
+		HAL_GPIO_WritePin(s_pins[pin].GPIOx, s_pins[pin].pin, RESET);
+	}
+	if(function == LCD_GPO_OFF){
+		mode = GPIO_MODE_OUTPUT_PP;
+		pull = GPIO_NOPULL;
+		s_pins[pin].is_init = true;
+
+		init_custom_gpio_ports(s_pins[pin].GPIOx, s_pins[pin].pin, GPIO_MODE_OUTPUT_PP,GPIO_NOPULL);
+		HAL_GPIO_WritePin(s_pins[pin].GPIOx, s_pins[pin].pin, SET);
+	}
+	if(function == LCD_READ_GPI){
+		mode = GPIO_MODE_INPUT;
+		pull = GPIO_NOPULL;
+		s_pins[pin].is_init = true;
+
+		init_custom_gpio_ports(s_pins[pin].GPIOx, s_pins[pin].pin, GPIO_MODE_INPUT,GPIO_NOPULL);
+		if((HAL_GPIO_ReadPin(s_pins[pin].GPIOx, s_pins[pin].pin)) == GPIO_PIN_RESET){
+					monitor_send_string("1");
+				}else{
+					monitor_send_string("0");
+				}
+	}
+}else{
+	if(function == LCD_GPO_ON){
+		HAL_GPIO_WritePin(s_pins[pin].GPIOx, s_pins[pin].pin, RESET);
+	}
+	if(function == LCD_GPO_OFF){
+		HAL_GPIO_WritePin(s_pins[pin].GPIOx, s_pins[pin].pin, SET);
+	}
+	if(function == LCD_READ_GPI){
+		if((HAL_GPIO_ReadPin(s_pins[pin].GPIOx, s_pins[pin].pin)) == GPIO_PIN_RESET){
+			monitor_send_string("0");
+		}else{
+			monitor_send_string("1");
+		}
+		s_pins[pin].is_init = false;
+	}
+}
 }
 
 /**@brief	Decode Convert  Expand Rotate Encode

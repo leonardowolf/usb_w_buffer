@@ -17,7 +17,7 @@
 
 
 typedef struct{
-	uint8_t deb_counter;
+	uint16_t deb_counter;
 	IRQn_Type IRQn_p;
 } key_ih;
 

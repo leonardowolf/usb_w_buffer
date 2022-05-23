@@ -42,6 +42,8 @@
 #define LCD_SCROLL_DISABLE   				82
 #define LCD_SOFT_RESET    					86
 #define LCD_CLEAR   						88
+#define LCD_GPO_ON							99
+#define LCD_GPO_OFF							100
 #define LCD_READ_GPI						101
 #define LCD_INVERSE_TEXT_ON 				102
 #define LCD_INVERSE_TEXT_OFF  				103
@@ -86,7 +88,16 @@ uint8_t custom_caracter[CUSTOM_CHARACTER_SIZE];
 uint8_t custo_character_index;
 } custom_character_t;
 
+typedef struct{
+GPIO_TypeDef *GPIOx;
+uint16_t pin;
+uint8_t dir;
+bool is_init;
+} gpio_db;
+
 uint16_t exp(uint16_t val,uint16_t pot );
+void init_custom_gpio_ports(GPIO_TypeDef *GPIOx, uint16_t pin, uint8_t mode,uint8_t pull);
+void gpio_handler(uint8_t function, uint16_t pin);
 void decode_convert_expand_encode(uint8_t *hex_char);
 void init_custom_character_db(void);
 void inverse_text(bool state);

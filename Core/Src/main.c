@@ -317,8 +317,6 @@ static void MX_TIM2_Init(void)
 
 }
 
-
-
 /**
   * @brief GPIO Initialization Function
   * @param None

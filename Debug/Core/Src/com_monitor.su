@@ -1,6 +1,6 @@
-../Core/Src/com_monitor.c:26:6:monitor_send_string	24	static
-../Core/Src/com_monitor.c:37:6:HAL_TIM_PeriodElapsedCallback	16	static
-../Core/Src/com_monitor.c:43:6:monitor_check_cmd	24	static
+../Core/Src/com_monitor.c:26:6:monitor_send_string	16	static
+../Core/Src/com_monitor.c:31:6:HAL_TIM_PeriodElapsedCallback	16	static
+../Core/Src/com_monitor.c:37:6:monitor_check_cmd	24	static
 ../Core/Src/com_monitor.c:181:6:app_usb_cbk	16	static
 ../Core/Src/com_monitor.c:194:6:monitor_interrupt	16	static
 ../Core/Src/com_monitor.c:245:6:monitor_begin	4	static

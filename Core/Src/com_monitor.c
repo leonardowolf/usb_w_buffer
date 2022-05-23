@@ -24,14 +24,8 @@ uint32_t size;
 bool new_cmd;
 
 void monitor_send_string(uint8_t *buf) {
-	uint8_t RxBuf[3];
+
 	while (CDC_Transmit_FS(buf, strlen(buf)) == USBD_OK);
-	//isso é a melhor forma de try til it works que eu consegui pensar
-/*	buf[2] = '\0';
-	Flash_Read_Data (0x800f800, RxBuf, 2);
-	Flash_Write_Data (0x800f800, buf, 2);
-	RxBuf[2] = '\0';
-	while (CDC_Transmit_FS(RxBuf, strlen(RxBuf)) == USBD_OK);*/
 }
 
 void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim) {
@@ -128,14 +122,6 @@ void monitor_check_cmd(char *cmd, uint32_t size) {
 			text_insertion_point(0, 0);
 		}
 
-		else if (cmd[1] == LCD_READ_GPI) {
-			if (cmd[2] == '0') {
-				snprintf((char*) ans, CMD_BUF_SIZE, "%d.%d V\r\n", ddp[0],
-						ddp[1]);
-				monitor_send_string(ans);
-			}
-		}
-
 		else if (cmd[1] == LCD_DISPLAY_SPLASH) {
 			disp_splash();
 		}
@@ -172,6 +158,20 @@ void monitor_check_cmd(char *cmd, uint32_t size) {
 		}
 		else if (cmd[1] == LCD_MOVE_CURSOR_RIGHT ) {
 			put_Ucursor(true,cmd[2], cmd[3],'R');
+		}
+		else if (cmd[1] == LCD_GPO_ON) {
+			gpio_handler(cmd[1], cmd[2]);
+		}
+		else if (cmd[1] == LCD_GPO_OFF) {
+			gpio_handler(cmd[1], cmd[2]);
+		}
+		else if (cmd[1] == LCD_READ_GPI) {
+			if (cmd[2] == '4') {
+				snprintf((char*) ans, CMD_BUF_SIZE, "%d.%d V\r\n", ddp[0],
+				ddp[1]);
+				monitor_send_string(ans);
+			}
+			gpio_handler(cmd[1], cmd[2]);
 		}
 
 
