@@ -24,5 +24,6 @@ typedef struct{
 void Kpd_Irqv_Init(void);
 void SystickCallback(void);
 void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin);
+void IRQ_GPIO_dealer(uint16_t GPIO_Pin);
 
 #endif /* INC_KEYPAD_IH_H_ */

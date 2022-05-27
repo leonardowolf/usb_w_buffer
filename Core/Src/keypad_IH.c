@@ -50,8 +50,7 @@ void SystickCallback(void) {
 		}
 	}
 }
-
-void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin) {
+void IRQ_GPIO_dealer(uint16_t GPIO_Pin){
 	if (GPIO_Pin == SET_P_Pin) {
 		//SET
 		HAL_NVIC_DisableIRQ(IRQ_VECTOR[0].IRQn_p);
@@ -95,4 +94,7 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin) {
 //		HAL_GPIO_TogglePin(GPIOC, GPIO_PIN_13);
 
 	}
+}
+void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin) {
+	IRQ_GPIO_dealer(GPIO_Pin);
 }

@@ -26,6 +26,7 @@
 #define LCD_INIT_CHINESE_T  				56
 #define LCD_SET_BAUD    					57
 #define LCD_DRAW_VERTICAL_BAR_GRAPH 		61
+#define LCD_PUT_BYTE						62
 #define LCD_BACKLIGHT_BRIGHTNESS  			65
 #define LCD_BACKLIGHT_ON    				66
 #define LCD_WRAP_ENABLE   					67
@@ -50,7 +51,6 @@
 #define LCD_DISPLAY_SPLASH					105
 #define LCD_PUT_PIXEL   					112
 #define LCD_CLEAR_PIXEL   					113
-#define LCD_PUT_BYTE						62
 #define LCD_DEF_THIN_VERTICAL_BAR			115
 #define LCD_DEF_THICK_VERTICAL_BAR			118
 #define LCD_DRAW_HORIZONTAL_BAR_GRAPH 		124
@@ -63,8 +63,8 @@
 #define CUSTOM_CHARACTER_SIZE 				6
 #define CUSTOM_CHARACTER_BUFFER_SIZE		16
 
-#define N 8
-#define MASK_BUFFER 105
+#define N 									8
+#define MASK_BUFFER 						105
 
 
 static bool text_invertion = false;

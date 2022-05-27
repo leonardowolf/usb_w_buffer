@@ -18,139 +18,141 @@
 extern u8g2_t u8g2;
 extern TIM_HandleTypeDef htim1;
 
-
 custom_character_t custom_character_db[CUSTOM_CHARACTER_BUFFER_SIZE];
 volatile gpio_db s_pins[4];
 
 /**@brief	Exponentiate [value] , at the [pot] level
  * eu redefini a funcão de exponenciação manualmente por não poder importar a biblioteca matematica inteira apenas por uma função :D
-*
-*/
-uint16_t exp(uint16_t val,uint16_t pot ){
-    uint16_t ans = 1;
-    while(pot){
-        ans *=val;
-        pot--;
-    }
-    return ans;
+ *
+ */
+uint16_t exp(uint16_t val, uint16_t pot) {
+	uint16_t ans = 1;
+	while (pot) {
+		ans *= val;
+		pot--;
+	}
+	return ans;
 }
-void gpio_custom_init(void){
+void gpio_custom_init(void) {
 	/* 0  ,   1 ,   2 ,  3  */
 	/*PB12, PB13, PB14, PB15*/
 	s_pins[0].GPIOx = GPIOB;
 	s_pins[0].pin = GPIO_PIN_12;
 	s_pins[0].is_init = false;
-	s_pins[0].dir='?';
+	s_pins[0].dir = '?';
 
 	s_pins[1].GPIOx = GPIOB;
 	s_pins[1].pin = GPIO_PIN_13;
 	s_pins[1].is_init = false;
-	s_pins[1].dir='?';
+	s_pins[1].dir = '?';
 
 	s_pins[2].GPIOx = GPIOB;
 	s_pins[2].pin = GPIO_PIN_14;
 	s_pins[2].is_init = false;
-	s_pins[2].dir='?';
+	s_pins[2].dir = '?';
 
 	s_pins[3].GPIOx = GPIOB;
 	s_pins[3].pin = GPIO_PIN_15;
 	s_pins[3].is_init = false;
-	s_pins[3].dir='?';
+	s_pins[3].dir = '?';
 }
 
-void init_custom_gpio_ports(GPIO_TypeDef *GPIOx, uint16_t pin, uint8_t mode,uint8_t pull){
-	  GPIO_InitTypeDef GPIO_InitStruct = {0};
-	  __HAL_RCC_GPIOC_CLK_ENABLE();
+void init_custom_gpio_ports(GPIO_TypeDef *GPIOx, uint16_t pin, uint8_t mode,
+		uint8_t pull) {
+	GPIO_InitTypeDef GPIO_InitStruct = { 0 };
+	__HAL_RCC_GPIOC_CLK_ENABLE();
 
-	  if(mode == GPIO_MODE_OUTPUT_PP){
-		  /*output */
-		   GPIO_InitStruct.Pin = pin;
-		   GPIO_InitStruct.Mode = mode;
-		   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
-	  }else{
-		  /*imput */
-		   GPIO_InitStruct.Pin = pin;
-		   GPIO_InitStruct.Mode = mode;
-	  }
-	  GPIO_InitStruct.Pull = pull;
-	  HAL_GPIO_Init(GPIOx, &GPIO_InitStruct);
+	if (mode == GPIO_MODE_OUTPUT_PP) {
+		/*output */
+		GPIO_InitStruct.Pin = pin;
+		GPIO_InitStruct.Mode = mode;
+		GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
+	} else {
+		/*imput */
+		GPIO_InitStruct.Pin = pin;
+		GPIO_InitStruct.Mode = mode;
+	}
+	GPIO_InitStruct.Pull = pull;
+	HAL_GPIO_Init(GPIOx, &GPIO_InitStruct);
 }
-void gpio_handler(uint8_t function, uint16_t pin){
+void gpio_handler(uint8_t function, uint16_t pin) {
 
-uint8_t mode;
-int8_t pull;
-
+	uint8_t mode;
+	int8_t pull;
 
 //is init
-if(!s_pins[pin].is_init){
-	if(function == LCD_GPO_ON){
-		mode = GPIO_MODE_OUTPUT_PP;
-		pull = GPIO_NOPULL;
-		s_pins[pin].is_init = true;
+	if (!s_pins[pin].is_init) {
+		if (function == LCD_GPO_ON) {
+			mode = GPIO_MODE_OUTPUT_PP;
+			pull = GPIO_NOPULL;
+			s_pins[pin].is_init = true;
 
-		init_custom_gpio_ports(s_pins[pin].GPIOx, s_pins[pin].pin, GPIO_MODE_OUTPUT_PP,GPIO_NOPULL);
-		HAL_GPIO_WritePin(s_pins[pin].GPIOx, s_pins[pin].pin, RESET);
-	}
-	if(function == LCD_GPO_OFF){
-		mode = GPIO_MODE_OUTPUT_PP;
-		pull = GPIO_NOPULL;
-		s_pins[pin].is_init = true;
-
-		init_custom_gpio_ports(s_pins[pin].GPIOx, s_pins[pin].pin, GPIO_MODE_OUTPUT_PP,GPIO_NOPULL);
-		HAL_GPIO_WritePin(s_pins[pin].GPIOx, s_pins[pin].pin, SET);
-	}
-	if(function == LCD_READ_GPI){
-		mode = GPIO_MODE_INPUT;
-		pull = GPIO_NOPULL;
-		s_pins[pin].is_init = true;
-
-		init_custom_gpio_ports(s_pins[pin].GPIOx, s_pins[pin].pin, GPIO_MODE_INPUT,GPIO_NOPULL);
-		if((HAL_GPIO_ReadPin(s_pins[pin].GPIOx, s_pins[pin].pin)) == GPIO_PIN_RESET){
-					monitor_send_string("1");
-				}else{
-					monitor_send_string("0");
-				}
-	}
-}else{
-	if(function == LCD_GPO_ON){
-		HAL_GPIO_WritePin(s_pins[pin].GPIOx, s_pins[pin].pin, RESET);
-	}
-	if(function == LCD_GPO_OFF){
-		HAL_GPIO_WritePin(s_pins[pin].GPIOx, s_pins[pin].pin, SET);
-	}
-	if(function == LCD_READ_GPI){
-		if((HAL_GPIO_ReadPin(s_pins[pin].GPIOx, s_pins[pin].pin)) == GPIO_PIN_RESET){
-			monitor_send_string("0");
-		}else{
-			monitor_send_string("1");
+			init_custom_gpio_ports(s_pins[pin].GPIOx, s_pins[pin].pin,
+					GPIO_MODE_OUTPUT_PP, GPIO_NOPULL);
+			HAL_GPIO_WritePin(s_pins[pin].GPIOx, s_pins[pin].pin, RESET);
 		}
-		s_pins[pin].is_init = false;
+		if (function == LCD_GPO_OFF) {
+			mode = GPIO_MODE_OUTPUT_PP;
+			pull = GPIO_NOPULL;
+			s_pins[pin].is_init = true;
+
+			init_custom_gpio_ports(s_pins[pin].GPIOx, s_pins[pin].pin,
+					GPIO_MODE_OUTPUT_PP, GPIO_NOPULL);
+			HAL_GPIO_WritePin(s_pins[pin].GPIOx, s_pins[pin].pin, SET);
+		}
+		if (function == LCD_READ_GPI) {
+			mode = GPIO_MODE_INPUT;
+			pull = GPIO_NOPULL;
+			s_pins[pin].is_init = true;
+
+			init_custom_gpio_ports(s_pins[pin].GPIOx, s_pins[pin].pin,
+					GPIO_MODE_INPUT, GPIO_NOPULL);
+			if ((HAL_GPIO_ReadPin(s_pins[pin].GPIOx, s_pins[pin].pin))
+					== GPIO_PIN_RESET) {
+				monitor_send_string("1");
+			} else {
+				monitor_send_string("0");
+			}
+		}
+	} else {
+		if (function == LCD_GPO_ON) {
+			HAL_GPIO_WritePin(s_pins[pin].GPIOx, s_pins[pin].pin, RESET);
+		}
+		if (function == LCD_GPO_OFF) {
+			HAL_GPIO_WritePin(s_pins[pin].GPIOx, s_pins[pin].pin, SET);
+		}
+		if (function == LCD_READ_GPI) {
+			if ((HAL_GPIO_ReadPin(s_pins[pin].GPIOx, s_pins[pin].pin))
+					== GPIO_PIN_RESET) {
+				monitor_send_string("0");
+			} else {
+				monitor_send_string("1");
+			}
+			s_pins[pin].is_init = false;
+		}
 	}
-}
 }
 
 /**@brief	Decode Convert  Expand Rotate Encode
  * Esta função decodifica um caracter em hexadecimal dado, amplifica ele para o tamanho da memoria do novo display, rotaciona ele e recodifica
  * de maneira que no banco de dados eu só vou salvar o caractere definido pelo usuario em hexadecimal e o indice
-*
-*/
-void decode_convert_expand_encode(uint8_t *hex_char){
-uint8_t mat[N][N]= {0};
-uint8_t i,j,k, hex, temp;
-
+ *
+ */
+void decode_convert_expand_encode(uint8_t *hex_char) {
+	uint8_t mat[N][N] = { 0 };
+	uint8_t i, j, k, hex, temp;
 
 //decode_expand
-    for(i=3; *(hex_char+i) != 0xFD ; i++){
-        hex = *(hex_char+i);
+	for (i = 3; *(hex_char + i) != 0xFD; i++) {
+		hex = *(hex_char + i);
 
-        for(j=7;j>=0 && j<8;j--)
-        {
-            mat[i-3][j] =hex%2;
-            hex=hex/2;
-        }
-    }
+		for (j = 7; j >= 0 && j < 8; j--) {
+			mat[i - 3][j] = hex % 2;
+			hex = hex / 2;
+		}
+	}
 //rotate
-        // Consider all squares one by one
+	// Consider all squares one by one
 	for (i = 0; i < N / 2; i++) {
 		// Consider elements in group
 		// of 4 in current square
@@ -163,39 +165,37 @@ uint8_t i,j,k, hex, temp;
 			mat[i][j] = mat[j][N - 1 - i];
 
 			// Move values from bottom to right
-			mat[j][N - 1 - i]
-				= mat[N - 1 - i][N - 1 - j];
+			mat[j][N - 1 - i] = mat[N - 1 - i][N - 1 - j];
 
 			// Move values from left to bottom
-			mat[N - 1 - i][N - 1 - j]
-				= mat[N - 1 - j][i];
+			mat[N - 1 - i][N - 1 - j] = mat[N - 1 - j][i];
 
 			// Assign temp to left
 			mat[N - 1 - j][i] = temp;
 		}
 	}
 //encode
-    for(i=0,k=0;i<N;i++){
-        temp=0;
-        for(j=0;j<N;j++){
-            temp += exp(2,N-j) * mat[i][j];
-        }
-        //save on the database
-        if(i>1 && k<CUSTOM_CHARACTER_SIZE){
-        	hex_char[k+3] = temp;
-        	k++;
-        }
-    }
+	for (i = 0, k = 0; i < N; i++) {
+		temp = 0;
+		for (j = 0; j < N; j++) {
+			temp += exp(2, N - j) * mat[i][j];
+		}
+		//save on the database
+		if (i > 1 && k < CUSTOM_CHARACTER_SIZE) {
+			hex_char[k + 3] = temp;
+			k++;
+		}
+	}
 }
 
 /**@brief	Initialize the custom characters Database					(Default: OFF)
-*	inicializa o banco de caracteres com o que foi salvo na memoria do equipamento
-*	por hora ele seta todos os valores salvos para zero mas pode um dia buscar na
-*	memoria persistente pelos valores gravados
-*
-*/
-void init_custom_character_db(void){
-	memset(custom_character_db,0,sizeof(custom_character_db));
+ *	inicializa o banco de caracteres com o que foi salvo na memoria do equipamento
+ *	por hora ele seta todos os valores salvos para zero mas pode um dia buscar na
+ *	memoria persistente pelos valores gravados
+ *
+ */
+void init_custom_character_db(void) {
+	memset(custom_character_db, 0, sizeof(custom_character_db));
 }
 // 				Command Summary
 //	->TEXT Commands
@@ -281,28 +281,41 @@ void text_insertion_point(uint8_t col, uint8_t row) {
  *	de memoria tanto para linha quanto para coluna
  */
 
-
-void put_Ucursor(bool enable,uint8_t col, uint8_t row,uint8_t hoover) {
+void put_Ucursor(bool enable, uint8_t col, uint8_t row, uint8_t hoover) {
 	static uint8_t ucursor[2];
 	u8g2_SetDrawColor(&u8g2, 2);
-	if(enable){
-		if(hoover){
-			if(hoover == 'R'){
-				u8g2_DrawFrame(&u8g2,ucursor[0], ucursor[1],u8g2_GetMaxCharWidth(&u8g2) , 1);
-				ucursor[0] = (ucursor[0] + u8g2_GetMaxCharWidth(&u8g2)) >  u8g2_GetDisplayWidth(&u8g2) - u8g2_GetMaxCharWidth(&u8g2) ? 0 : ucursor[0] + u8g2_GetMaxCharWidth(&u8g2);
-				u8g2_DrawFrame(&u8g2,ucursor[0], ucursor[1],u8g2_GetMaxCharWidth(&u8g2) , 1);
-			}else{
-				u8g2_DrawFrame(&u8g2,ucursor[0], ucursor[1],u8g2_GetMaxCharWidth(&u8g2) , 1);
-				ucursor[0] = (ucursor[0] - u8g2_GetMaxCharWidth(&u8g2)) < 0 ? u8g2_GetDisplayWidth(&u8g2) - u8g2_GetMaxCharWidth(&u8g2) : ucursor[0] - u8g2_GetMaxCharWidth(&u8g2);
-				u8g2_DrawFrame(&u8g2,ucursor[0], ucursor[1],u8g2_GetMaxCharWidth(&u8g2) , 1);
+	if (enable) {
+		if (hoover) {
+			if (hoover == 'R') {
+				u8g2_DrawFrame(&u8g2, ucursor[0], ucursor[1],
+						u8g2_GetMaxCharWidth(&u8g2), 1);
+				ucursor[0] =
+						(ucursor[0] + u8g2_GetMaxCharWidth(&u8g2))
+								> u8g2_GetDisplayWidth(&u8g2)
+										- u8g2_GetMaxCharWidth(&u8g2) ?
+								0 : ucursor[0] + u8g2_GetMaxCharWidth(&u8g2);
+				u8g2_DrawFrame(&u8g2, ucursor[0], ucursor[1],
+						u8g2_GetMaxCharWidth(&u8g2), 1);
+			} else {
+				u8g2_DrawFrame(&u8g2, ucursor[0], ucursor[1],
+						u8g2_GetMaxCharWidth(&u8g2), 1);
+				ucursor[0] =
+						(ucursor[0] - u8g2_GetMaxCharWidth(&u8g2)) < 0 ?
+								u8g2_GetDisplayWidth(
+										&u8g2) - u8g2_GetMaxCharWidth(&u8g2) :
+								ucursor[0] - u8g2_GetMaxCharWidth(&u8g2);
+				u8g2_DrawFrame(&u8g2, ucursor[0], ucursor[1],
+						u8g2_GetMaxCharWidth(&u8g2), 1);
 			}
-		} else{
-			ucursor[0] = col*u8g2_GetMaxCharWidth(&u8g2);
-			ucursor[1] = (row+1)*u8g2_GetMaxCharWidth(&u8g2)+2;
-			u8g2_DrawFrame(&u8g2,ucursor[0], ucursor[1],u8g2_GetMaxCharWidth(&u8g2) , 1);
+		} else {
+			ucursor[0] = col * u8g2_GetMaxCharWidth(&u8g2);
+			ucursor[1] = (row + 1) * u8g2_GetMaxCharWidth(&u8g2) + 2;
+			u8g2_DrawFrame(&u8g2, ucursor[0], ucursor[1],
+					u8g2_GetMaxCharWidth(&u8g2), 1);
 		}
-	}else{
-		u8g2_DrawFrame(&u8g2,ucursor[0], ucursor[1],u8g2_GetMaxCharWidth(&u8g2) , 1);
+	} else {
+		u8g2_DrawFrame(&u8g2, ucursor[0], ucursor[1],
+				u8g2_GetMaxCharWidth(&u8g2), 1);
 	}
 	u8g2_SendBuffer(&u8g2);
 	u8g2_SetDrawColor(&u8g2, 1);
@@ -344,11 +357,11 @@ void inverse_text(bool state) {
  *	254 115 253
  *	254 `s` 253
  */
-void def_v_bar_thickness(uint8_t thick){
-	if(thick){
-		vertical_bar_width = 10;//5 no original
-	}else{
-		vertical_bar_width = 4;//2 no original
+void def_v_bar_thickness(uint8_t thick) {
+	if (thick) {
+		vertical_bar_width = 10;			//5 no original
+	} else {
+		vertical_bar_width = 4;			//2 no original
 	}
 }
 
@@ -359,10 +372,10 @@ void def_v_bar_thickness(uint8_t thick){
  *	254 104 [cc] [6bytes] 253
  *	254 `N` [cc] [6bytes] 253
  */
-void define_custom_character(uint8_t *cmd){
-		decode_convert_expand_encode(cmd);
-		memcpy(custom_character_db[*(cmd+2)].custom_caracter,cmd+3,6);
-		custom_character_db[*(cmd+2)].custo_character_index = *(cmd+2);
+void define_custom_character(uint8_t *cmd) {
+	decode_convert_expand_encode(cmd);
+	memcpy(custom_character_db[*(cmd + 2)].custom_caracter, cmd + 3, 6);
+	custom_character_db[*(cmd + 2)].custo_character_index = *(cmd + 2);
 }
 
 /**@brief Draw a vertical bar graph									(Default: N/A)
@@ -373,31 +386,31 @@ void define_custom_character(uint8_t *cmd){
  *	254 `=` [col] [height] 253
  */
 void draw_un_v_bar_graph(uint8_t col, uint8_t height, bool erase) {
-	static uint8_t vcursor, temp_height = 200 , temp_col=200;
+	static uint8_t vcursor, temp_height = 200, temp_col = 200;
 
-	vcursor = col*u8g2_GetMaxCharWidth(&u8g2);
-	height = u8g2_GetDisplayHeight(&u8g2) - height*2;
+	vcursor = col * u8g2_GetMaxCharWidth(&u8g2);
+	height = u8g2_GetDisplayHeight(&u8g2) - height * 2;
 
-
-
-	if(!erase){
+	if (!erase) {
 		u8g2_SetDrawColor(&u8g2, 0);
-		u8g2_DrawBox(&u8g2, temp_col, temp_height, vertical_bar_width, u8g2_GetDisplayHeight(&u8g2));
+		u8g2_DrawBox(&u8g2, temp_col, temp_height, vertical_bar_width,
+				u8g2_GetDisplayHeight(&u8g2));
 		u8g2_SetDrawColor(&u8g2, 1);
-		u8g2_DrawBox(&u8g2, vcursor, height, vertical_bar_width, u8g2_GetDisplayHeight(&u8g2));
+		u8g2_DrawBox(&u8g2, vcursor, height, vertical_bar_width,
+				u8g2_GetDisplayHeight(&u8g2));
 
 		temp_height = height;
 		temp_col = vcursor;
 
-	}else{
+	} else {
 		u8g2_SetDrawColor(&u8g2, 0);
-		u8g2_DrawBox(&u8g2, vcursor, height, vertical_bar_width, u8g2_GetDisplayHeight(&u8g2));
+		u8g2_DrawBox(&u8g2, vcursor, height, vertical_bar_width,
+				u8g2_GetDisplayHeight(&u8g2));
 	}
 
 	u8g2_SendBuffer(&u8g2);
 
 }
-
 
 /**@brief Erase a horizontal bar graph									(Default: N/A)
  *	Apaga a barra horizontal na coluna [col] da linha [row] com largura [length]
@@ -413,23 +426,22 @@ void draw_un_v_bar_graph(uint8_t col, uint8_t height, bool erase) {
  *	254 124 [cc] [height] 253
  *	254 `|` [cc] [height] 253
  */
-void draw_un_h_bar_graph(uint8_t col, uint8_t row, uint8_t lenght , bool erase) {
-	if(!erase){
-		u8g2_DrawBox(&u8g2, (col) * u8g2_GetMaxCharWidth(&u8g2), (row) * u8g2_GetMaxCharHeight(&u8g2), lenght * 2,
-		u8g2_GetMaxCharHeight(&u8g2)-3);
+void draw_un_h_bar_graph(uint8_t col, uint8_t row, uint8_t lenght, bool erase) {
+	if (!erase) {
+		u8g2_DrawBox(&u8g2, (col) * u8g2_GetMaxCharWidth(&u8g2),
+				(row) * u8g2_GetMaxCharHeight(&u8g2), lenght * 2,
+				u8g2_GetMaxCharHeight(&u8g2) - 3);
 
-	}else{
+	} else {
 		u8g2_SetDrawColor(&u8g2, 0);
-		u8g2_DrawBox(&u8g2, (col) * u8g2_GetMaxCharWidth(&u8g2), (row) * u8g2_GetMaxCharHeight(&u8g2), lenght * 2,
-				u8g2_GetMaxCharHeight(&u8g2)-3);
+		u8g2_DrawBox(&u8g2, (col) * u8g2_GetMaxCharWidth(&u8g2),
+				(row) * u8g2_GetMaxCharHeight(&u8g2), lenght * 2,
+				u8g2_GetMaxCharHeight(&u8g2) - 3);
 
 	}
 	u8g2_SetDrawColor(&u8g2, 1);
 	u8g2_SendBuffer(&u8g2);
 }
-
-
-
 
 /**@brief Put pixel													(Default: N/A)
  *	Desenha um pixel na posição (x,y). X varia de 0-121 e y varia 0-31
@@ -461,16 +473,15 @@ void erase_pixel(uint8_t x, uint8_t y) {
  *	254 62 [x] [row] [byte] [4 dummy bytes]  253
  *	254 `>` [x] [row] [byte] [4 dummy bytes]  253
  */
-void put_byte(uint8_t x, uint8_t row, uint8_t byte){
+void put_byte(uint8_t x, uint8_t row, uint8_t byte) {
 	char arr[8], i;
 	memset(arr, 0, 8);
-	for(i=0; byte > 0; i++)
-	  {
-	    arr[i] = byte%2;
-	    byte = byte/2;
-	  }
+	for (i = 0; byte > 0; i++) {
+		arr[i] = byte % 2;
+		byte = byte / 2;
+	}
 	row = row * ((u8g2_GetMaxCharHeight(&u8g2)) - ESP_ENTRE_LINHAS);
-	u8g2_DrawXBM(&u8g2 , x, row, 1, 8, arr);
+	u8g2_DrawXBM(&u8g2, x, row, 1, 8, arr);
 	u8g2_SendBuffer(&u8g2);
 
 }
@@ -515,12 +526,12 @@ void clear_display(void) {
  */
 void enable_backlight(bool enable) {
 	//liga a backlight
-	if(enable){
-	HAL_GPIO_WritePin(GPIOA, GPIO_PIN_4,GPIO_PIN_SET);
-	HAL_TIM_PWM_Start(&htim1, TIM_CHANNEL_1);
-	__HAL_TIM_SET_COMPARE(&htim1, TIM_CHANNEL_1, LCD_BRIGHT );
-	}else{
-		HAL_GPIO_WritePin(GPIOA, GPIO_PIN_4,GPIO_PIN_RESET);
+	if (enable) {
+		HAL_GPIO_WritePin(GPIOA, GPIO_PIN_4, GPIO_PIN_SET);
+		HAL_TIM_PWM_Start(&htim1, TIM_CHANNEL_1);
+		__HAL_TIM_SET_COMPARE(&htim1, TIM_CHANNEL_1, LCD_BRIGHT);
+	} else {
+		HAL_GPIO_WritePin(GPIOA, GPIO_PIN_4, GPIO_PIN_RESET);
 		HAL_TIM_PWM_Stop(&htim1, TIM_CHANNEL_1);
 	}
 }
@@ -531,10 +542,10 @@ void enable_backlight(bool enable) {
  *		254 64 [bright] 253
  *		254 'A' [bright] 253
  */
-void set_backlight_brightness(uint8_t bright){
-	if(bright){
-	LCD_BRIGHT = (7/bright)*59999;
-	__HAL_TIM_SET_COMPARE(&htim1, TIM_CHANNEL_1, LCD_BRIGHT);
+void set_backlight_brightness(uint8_t bright) {
+	if (bright) {
+		LCD_BRIGHT = (7 / bright) * 59999;
+		__HAL_TIM_SET_COMPARE(&htim1, TIM_CHANNEL_1, LCD_BRIGHT);
 	}
 }
 
@@ -704,50 +715,50 @@ void str_warper(txt_wrap_t *wrap, uint8_t *txt) {
 	}
 }
 
-
-bool Custom_Character_masker(uint8_t *txt,uint8_t * mask, uint8_t *v_cursor){
+bool Custom_Character_masker(uint8_t *txt, uint8_t *mask, uint8_t *v_cursor) {
 	uint8_t index;
 	bool enable;
-	strncpy(mask,txt,MASK_BUFFER);
-	*(mask+MASK_BUFFER-1) = '\0';
+	strncpy(mask, txt, MASK_BUFFER);
+	*(mask + MASK_BUFFER - 1) = '\0';
 
-	*(v_cursor+0) = cursor[0];
-	*(v_cursor+1) = cursor[1];
+	*(v_cursor + 0) = cursor[0];
+	*(v_cursor + 1) = cursor[1];
 
-	for(index=0;*(mask+index) != '\0';index++){
-		if(*(mask+index)>=0 && *(mask+index)<=16){
-			*(mask+index) =32;
+	for (index = 0; *(mask + index) != '\0'; index++) {
+		if (*(mask + index) >= 0 && *(mask + index) <= 16) {
+			*(mask + index) = 32;
 			enable = true;
 		}
 	}
-return enable;
+	return enable;
 }
-void clean_it(uint8_t *str){
+void clean_it(uint8_t *str) {
 	memset(str, 0, sizeof(str));
 }
-void custom_character_dealer( uint8_t *txt){
+void custom_character_dealer(uint8_t *txt) {
 	uint8_t char_w = 8;
 	uint8_t char_h = 6;
-	uint8_t offset,temp_x,temp_y,index;
+	uint8_t offset, temp_x, temp_y, index;
 	temp_x = cursor[0];
 	temp_y = cursor[1];
-	for(offset = 0;*(txt+offset) !='\0';offset++){
-		index = *(txt+offset);
-		if((custom_character_db[index].custo_character_index)){
-				u8g2_DrawXBM(&u8g2 , temp_x, temp_y+4, char_w, char_h, custom_character_db[index].custom_caracter);
-				u8g2_SendBuffer(&u8g2);
-				temp_x += u8g2_GetMaxCharWidth(&u8g2);
-				//trocando os caracteres especiais por um espaço em branco pra bater com a conta de espaço em tela
-				//é um custom caracter
-				//ele foi definido pelo usuario
-				//ele deve ser impresso
-			}else{
-				temp_x += u8g2_GetMaxCharWidth(&u8g2);
-			}
+	for (offset = 0; *(txt + offset) != '\0'; offset++) {
+		index = *(txt + offset);
+		if ((custom_character_db[index].custo_character_index)) {
+			u8g2_DrawXBM(&u8g2, temp_x, temp_y + 4, char_w, char_h,
+					custom_character_db[index].custom_caracter);
+
+			temp_x += u8g2_GetMaxCharWidth(&u8g2);
+			//trocando os caracteres especiais por um espaço em branco pra bater com a conta de espaço em tela
+			//é um custom caracter
+			//ele foi definido pelo usuario
+			//ele deve ser impresso
+		} else {
+			temp_x += u8g2_GetMaxCharWidth(&u8g2);
+		}
 	}
 
-}
 
+}
 
 void lcd_print(uint8_t *txt) {
 	txt_wrap_t wrap;
@@ -756,24 +767,14 @@ void lcd_print(uint8_t *txt) {
 	uint8_t mask[MASK_BUFFER];
 	bool enable;
 
-
 	if (text_invertion) {
 		if (text_wrap) {
 			str_warper(&wrap, txt);
 			for (aux = 0; aux <= wrap.wrap_times; aux++) {
-				//cursor[1] = (aux * u8g2_GetMaxCharHeight(&u8g2));
 
 				u8g2_DrawButtonUTF8(&u8g2, cursor[0], cursor[1], U8G2_BTN_INV,
 						0, 0, 0, wrap.wrap_str[aux]);
 				u8g2_SendBuffer(&u8g2);
-				/*	if (u8g2_GetStrWidth(&u8g2,
-				 wrap.wrap_str[aux - 1]) > u8g2_GetDisplayWidth(&u8g2)) {
-				 cursor[1] = (aux * u8g2_GetMaxCharHeight(&u8g2));
-				 cursor[0] = 0;
-				 } else {
-				 cursor[0] += u8g2_GetStrWidth(&u8g2,
-				 wrap.wrap_str[aux - 1]);
-				 }*/
 			}
 			clean_it(wrap.wrap_str);
 		} else {
@@ -791,18 +792,20 @@ void lcd_print(uint8_t *txt) {
 			if (wrap.wrap_times) {
 				for (aux = 0; aux <= wrap.wrap_times; aux++) {
 					clean_it(mask);
-					enable = Custom_Character_masker(wrap.wrap_str[aux],mask,v_cursor);
+					enable = Custom_Character_masker(wrap.wrap_str[aux], mask,
+							v_cursor);
 //					u8g2_DrawUTF8(&u8g2, cursor[0], cursor[1],wrap.wrap_str[aux]);
+					u8g2_SetDrawColor(&u8g2, 2);
 					u8g2_DrawUTF8(&u8g2, v_cursor[0], v_cursor[1], mask);
-					u8g2_SendBuffer(&u8g2);
-					if(enable){
+					if (enable) {
 						custom_character_dealer(wrap.wrap_str[aux]);
 					}
+					cursor[1] += (u8g2_GetMaxCharHeight(&u8g2))
+							- ESP_ENTRE_LINHAS;
 
 
-					cursor[1] += (u8g2_GetMaxCharHeight(&u8g2)) - ESP_ENTRE_LINHAS;
-
-
+					u8g2_SendBuffer(&u8g2);
+					u8g2_SetDrawColor(&u8g2, 1);
 				}
 				clean_it(wrap.wrap_str);
 			} else {
@@ -819,15 +822,15 @@ void lcd_print(uint8_t *txt) {
 			 cursor[0] += u8g2_GetStrWidth(&u8g2, wrap.wrap_str[aux - 1]);
 			 }*/
 		} else {
-			enable = Custom_Character_masker(txt,mask,v_cursor);
+			enable = Custom_Character_masker(txt, mask, v_cursor);
 			u8g2_DrawUTF8(&u8g2, v_cursor[0], v_cursor[1], mask);
-			u8g2_SendBuffer(&u8g2);
-			if(enable){
+
+			if (enable) {
 				custom_character_dealer(txt);
 			}
 			cursor[0] += u8g2_GetStrWidth(&u8g2, txt);
 		}
 	}
+	u8g2_SendBuffer(&u8g2);
 }
-
 
