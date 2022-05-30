@@ -372,18 +372,12 @@ static void MX_GPIO_Init(void)
   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
   HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
 
-  /*Configure GPIO pin : SET_P_Pin */
-  GPIO_InitStruct.Pin = SET_P_Pin;
+  /*Configure GPIO pins : SET_P_Pin RESET_P_Pin UP_P_Pin DOWN_P_Pin
+                           LEFT_P_Pin RIGHT_P_Pin */
+  GPIO_InitStruct.Pin = SET_P_Pin|RESET_P_Pin|UP_P_Pin|DOWN_P_Pin
+                          |LEFT_P_Pin|RIGHT_P_Pin;
   GPIO_InitStruct.Mode = GPIO_MODE_IT_FALLING;
   GPIO_InitStruct.Pull = GPIO_NOPULL;
-  HAL_GPIO_Init(SET_P_GPIO_Port, &GPIO_InitStruct);
-
-  /*Configure GPIO pins : RESET_P_Pin UP_P_Pin DOWN_P_Pin LEFT_P_Pin
-                           RIGHT_P_Pin */
-  GPIO_InitStruct.Pin = RESET_P_Pin|UP_P_Pin|DOWN_P_Pin|LEFT_P_Pin
-                          |RIGHT_P_Pin;
-  GPIO_InitStruct.Mode = GPIO_MODE_IT_FALLING;
-  GPIO_InitStruct.Pull = GPIO_PULLUP;
   HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
 
   /* EXTI interrupt init*/

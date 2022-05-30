@@ -395,7 +395,7 @@ void draw_un_v_bar_graph(uint8_t col, uint8_t height, bool erase) {
 		u8g2_SetDrawColor(&u8g2, 0);
 		u8g2_DrawBox(&u8g2, temp_col, temp_height, vertical_bar_width,
 				u8g2_GetDisplayHeight(&u8g2));
-		u8g2_SetDrawColor(&u8g2, 1);
+
 		u8g2_DrawBox(&u8g2, vcursor, height, vertical_bar_width,
 				u8g2_GetDisplayHeight(&u8g2));
 
@@ -407,7 +407,7 @@ void draw_un_v_bar_graph(uint8_t col, uint8_t height, bool erase) {
 		u8g2_DrawBox(&u8g2, vcursor, height, vertical_bar_width,
 				u8g2_GetDisplayHeight(&u8g2));
 	}
-
+	u8g2_SetDrawColor(&u8g2, 1);
 	u8g2_SendBuffer(&u8g2);
 
 }
@@ -464,6 +464,7 @@ void put_pixel(uint8_t x, uint8_t y) {
 void erase_pixel(uint8_t x, uint8_t y) {
 	u8g2_SetDrawColor(&u8g2, 0);
 	u8g2_DrawPixel(&u8g2, x, y);
+	u8g2_SetDrawColor(&u8g2, 1);
 	u8g2_SendBuffer(&u8g2);
 }
 
@@ -795,7 +796,7 @@ void lcd_print(uint8_t *txt) {
 					enable = Custom_Character_masker(wrap.wrap_str[aux], mask,
 							v_cursor);
 //					u8g2_DrawUTF8(&u8g2, cursor[0], cursor[1],wrap.wrap_str[aux]);
-					u8g2_SetDrawColor(&u8g2, 2);
+//					u8g2_SetDrawColor(&u8g2, 2);
 					u8g2_DrawUTF8(&u8g2, v_cursor[0], v_cursor[1], mask);
 					if (enable) {
 						custom_character_dealer(wrap.wrap_str[aux]);
