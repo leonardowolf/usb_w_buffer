@@ -24,7 +24,7 @@
 /* USER CODE BEGIN INCLUDE */
 #include <com_monitor.h>
 // 115200bps, 1 stop, no parity, 8bit
-uint8_t line_code[] = {0x00, 0x1C200, 0x01, 0x00, 0x00, 0x00, 0x08};
+uint8_t line_code[] = {0x00, 0xC2, 0x01, 0x00, 0x00, 0x00, 0x08};
 /* USER CODE END INCLUDE */
 
 /* Private typedef -----------------------------------------------------------*/

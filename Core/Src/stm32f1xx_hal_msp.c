@@ -71,15 +71,17 @@ void HAL_MspInit(void)
   __HAL_RCC_AFIO_CLK_ENABLE();
   __HAL_RCC_PWR_CLK_ENABLE();
 
+  HAL_NVIC_SetPriorityGrouping(NVIC_PRIORITYGROUP_3);
+
   /* System interrupt init*/
 
   /* Peripheral interrupt init */
   /* RCC_IRQn interrupt configuration */
-  HAL_NVIC_SetPriority(RCC_IRQn, 0, 0);
+  HAL_NVIC_SetPriority(RCC_IRQn, 1, 0);
   /* RCC_IRQn interrupt configuration */
   HAL_NVIC_EnableIRQ(RCC_IRQn);
   /* RCC_IRQn interrupt configuration */
-  HAL_NVIC_SetPriority(RCC_IRQn, 0, 0);
+  HAL_NVIC_SetPriority(RCC_IRQn, 1, 0);
   /* RCC_IRQn interrupt configuration */
   HAL_NVIC_EnableIRQ(RCC_IRQn);
 
@@ -182,7 +184,7 @@ void HAL_TIM_Base_MspInit(TIM_HandleTypeDef* htim_base)
     /* Peripheral clock enable */
     __HAL_RCC_TIM2_CLK_ENABLE();
     /* TIM2 interrupt Init */
-    HAL_NVIC_SetPriority(TIM2_IRQn, 0, 0);
+    HAL_NVIC_SetPriority(TIM2_IRQn, 1, 0);
     HAL_NVIC_EnableIRQ(TIM2_IRQn);
   /* USER CODE BEGIN TIM2_MspInit 1 */
 
