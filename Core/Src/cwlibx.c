@@ -744,10 +744,10 @@ void custom_character_dealer(uint8_t *txt) {
 	temp_y = cursor[1];
 	for (offset = 0; *(txt + offset) != '\0'; offset++) {
 		index = *(txt + offset);
-		if ((custom_character_db[index].custo_character_index)) {
+		if (index<=16 && (custom_character_db[index].custo_character_index)) {
 			u8g2_DrawXBM(&u8g2, temp_x, temp_y + 4, char_w, char_h,
 					custom_character_db[index].custom_caracter);
-
+			u8g2_SendBuffer(&u8g2);
 			temp_x += u8g2_GetMaxCharWidth(&u8g2);
 			//trocando os caracteres especiais por um espaço em branco pra bater com a conta de espaço em tela
 			//é um custom caracter
@@ -763,7 +763,7 @@ void custom_character_dealer(uint8_t *txt) {
 
 void lcd_print(uint8_t *txt) {
 	txt_wrap_t wrap;
-	uint8_t aux = 0, i;
+	uint8_t aux = 0;
 	uint8_t v_cursor[2];
 	uint8_t mask[MASK_BUFFER];
 	bool enable;
@@ -797,15 +797,21 @@ void lcd_print(uint8_t *txt) {
 							v_cursor);
 //					u8g2_DrawUTF8(&u8g2, cursor[0], cursor[1],wrap.wrap_str[aux]);
 //					u8g2_SetDrawColor(&u8g2, 2);
+
 					u8g2_DrawUTF8(&u8g2, v_cursor[0], v_cursor[1], mask);
+					u8g2_SendBuffer(&u8g2);
+
 					if (enable) {
 						custom_character_dealer(wrap.wrap_str[aux]);
 					}
-					cursor[1] += (u8g2_GetMaxCharHeight(&u8g2))
-							- ESP_ENTRE_LINHAS;
 
 
-					u8g2_SendBuffer(&u8g2);
+
+
+					cursor[1] += (u8g2_GetMaxCharHeight(&u8g2)) - ESP_ENTRE_LINHAS;
+
+
+//					u8g2_SendBuffer(&u8g2);
 					u8g2_SetDrawColor(&u8g2, 1);
 				}
 				clean_it(wrap.wrap_str);
