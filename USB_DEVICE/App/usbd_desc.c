@@ -62,10 +62,10 @@
   * @{
   */
 
-#define USBD_VID     0x0A01
+#define USBD_VID     0x067B
 #define USBD_LANGID_STRING     1033
 #define USBD_MANUFACTURER_STRING     "Viacast"
-#define USBD_PID_FS     0x0103
+#define USBD_PID_FS     0x2303
 #define USBD_PRODUCT_STRING_FS     "USB Nano Display"
 #define USBD_CONFIGURATION_STRING_FS     "CDC Config"
 #define USBD_INTERFACE_STRING_FS     "CDC Interface"
