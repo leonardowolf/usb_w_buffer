@@ -29,7 +29,7 @@ Core/Src/cwlibx.o: ../Core/Src/cwlibx.c ../Core/Inc/main.h \
  ../Drivers/STM32F1xx_HAL_Driver/Inc/stm32f1xx_hal_pcd_ex.h \
  ../Core/Inc/u8g2.h ../Core/Inc/u8x8.h ../Core/Inc/ac.h \
  ../Core/Inc/u8g2.h ../Core/Inc/logo_defs.h ../Core/Inc/cwlibx.h \
- ../Core/Inc/flash_manipulation.h
+ ../Core/Inc/com_monitor.h ../Core/Inc/flash_manipulation.h
 ../Core/Inc/main.h:
 ../Drivers/STM32F1xx_HAL_Driver/Inc/stm32f1xx_hal.h:
 ../Core/Inc/stm32f1xx_hal_conf.h:
@@ -65,4 +65,5 @@ Core/Src/cwlibx.o: ../Core/Src/cwlibx.c ../Core/Inc/main.h \
 ../Core/Inc/u8g2.h:
 ../Core/Inc/logo_defs.h:
 ../Core/Inc/cwlibx.h:
+../Core/Inc/com_monitor.h:
 ../Core/Inc/flash_manipulation.h:

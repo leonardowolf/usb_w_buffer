@@ -78,7 +78,7 @@ static uint8_t ESP_ENTRE_LINHAS = 2;
 
 typedef struct
 {
-    uint8_t wrap_str[N_LINES][MAX_CHARS_ONSCREEN];
+    uint8_t wrap_str[N_LINES][MAX_CHARS_ONSCREEN+1];
     uint8_t wrap_times;
 
 } txt_wrap_t;

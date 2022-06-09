@@ -13,6 +13,7 @@
 #include "ac.h"
 #include "logo_defs.h"
 #include "cwlibx.h"
+#include "com_monitor.h"
 #include "flash_manipulation.h"
 
 extern u8g2_t u8g2;
@@ -670,7 +671,6 @@ void save_screen_to_splash(void);
  *		254 'j' 253
  */
 void disp_splash(void) {
-
 	u8g2_DrawXBM(&u8g2, ((display_w / 2) - (vc_width / 2)),
 			((display_h / 2) - (vc_height / 2)), vc_width, vc_height, &vc_bits);
 	u8g2_SendBuffer(&u8g2);
@@ -693,6 +693,7 @@ void str_warper(txt_wrap_t *wrap, uint8_t *txt) {
 	uint8_t index = 0, aux;
 	uint8_t shift = 0;
 
+clean_it(wrap->wrap_str);
 	index = strlen(txt);
 	wrap->wrap_times = index / MAX_CHARS_ONSCREEN;
 	if (wrap->wrap_times) {
@@ -703,8 +704,8 @@ void str_warper(txt_wrap_t *wrap, uint8_t *txt) {
 						1 : 0;
 				strncpy(wrap->wrap_str[aux],
 						txt + ((MAX_CHARS_ONSCREEN) * (aux)),
-						MAX_CHARS_ONSCREEN - 1);
-				wrap->wrap_str[aux][MAX_CHARS_ONSCREEN - 1] = '\0';
+						MAX_CHARS_ONSCREEN);
+				wrap->wrap_str[aux][MAX_CHARS_ONSCREEN] = '\0';
 			} else {
 				shift = *(txt + ((MAX_CHARS_ONSCREEN - 1) * (aux))) == ' ' ?
 						0 : 1;
@@ -764,7 +765,7 @@ void custom_character_dealer(uint8_t *txt) {
 void lcd_print(uint8_t *txt) {
 	txt_wrap_t wrap;
 	uint8_t aux = 0;
-	uint8_t v_cursor[2];
+	static uint8_t v_cursor[2];
 	uint8_t mask[MASK_BUFFER];
 	bool enable;
 
@@ -793,13 +794,16 @@ void lcd_print(uint8_t *txt) {
 			if (wrap.wrap_times) {
 				for (aux = 0; aux <= wrap.wrap_times; aux++) {
 					clean_it(mask);
+					if(aux){
+						cursor[1] += (u8g2_GetMaxCharHeight(&u8g2)) - ESP_ENTRE_LINHAS;
+					}
 					enable = Custom_Character_masker(wrap.wrap_str[aux], mask,
 							v_cursor);
 //					u8g2_DrawUTF8(&u8g2, cursor[0], cursor[1],wrap.wrap_str[aux]);
 //					u8g2_SetDrawColor(&u8g2, 2);
 
-					u8g2_DrawUTF8(&u8g2, v_cursor[0], v_cursor[1], mask);
-					u8g2_SendBuffer(&u8g2);
+ 					u8g2_DrawUTF8(&u8g2, v_cursor[0], v_cursor[1], mask);
+
 
 					if (enable) {
 						custom_character_dealer(wrap.wrap_str[aux]);
@@ -808,16 +812,17 @@ void lcd_print(uint8_t *txt) {
 
 
 
-					cursor[1] += (u8g2_GetMaxCharHeight(&u8g2)) - ESP_ENTRE_LINHAS;
 
 
-//					u8g2_SendBuffer(&u8g2);
+					u8g2_SendBuffer(&u8g2);
 					u8g2_SetDrawColor(&u8g2, 1);
 				}
+				cursor[0] += u8g2_GetStrWidth(&u8g2, mask);
 				clean_it(wrap.wrap_str);
 			} else {
 
 				u8g2_DrawUTF8(&u8g2, cursor[0], cursor[1], txt);
+				cursor[0] += u8g2_GetStrWidth(&u8g2, txt);
 				u8g2_SendBuffer(&u8g2);
 			}
 
