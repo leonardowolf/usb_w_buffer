@@ -89,7 +89,7 @@ void gpio_handler(uint8_t function, uint16_t pin) {
 			s_pins[pin].is_init = true;
 
 			init_custom_gpio_ports(s_pins[pin].GPIOx, s_pins[pin].pin,
-					GPIO_MODE_OUTPUT_PP, GPIO_NOPULL);
+			GPIO_MODE_OUTPUT_PP, GPIO_NOPULL);
 			HAL_GPIO_WritePin(s_pins[pin].GPIOx, s_pins[pin].pin, RESET);
 		}
 		if (function == LCD_GPO_OFF) {
@@ -98,7 +98,7 @@ void gpio_handler(uint8_t function, uint16_t pin) {
 			s_pins[pin].is_init = true;
 
 			init_custom_gpio_ports(s_pins[pin].GPIOx, s_pins[pin].pin,
-					GPIO_MODE_OUTPUT_PP, GPIO_NOPULL);
+			GPIO_MODE_OUTPUT_PP, GPIO_NOPULL);
 			HAL_GPIO_WritePin(s_pins[pin].GPIOx, s_pins[pin].pin, SET);
 		}
 		if (function == LCD_READ_GPI) {
@@ -107,7 +107,7 @@ void gpio_handler(uint8_t function, uint16_t pin) {
 			s_pins[pin].is_init = true;
 
 			init_custom_gpio_ports(s_pins[pin].GPIOx, s_pins[pin].pin,
-					GPIO_MODE_INPUT, GPIO_NOPULL);
+			GPIO_MODE_INPUT, GPIO_NOPULL);
 			if ((HAL_GPIO_ReadPin(s_pins[pin].GPIOx, s_pins[pin].pin))
 					== GPIO_PIN_RESET) {
 				monitor_send_string("1");
@@ -690,22 +690,32 @@ void restore_def_logo(void);
  *
  */
 void str_warper(txt_wrap_t *wrap, uint8_t *txt) {
-	uint8_t index = 0, aux;
-	uint8_t shift = 0;
+	uint8_t index = 0, aux, delta;
+	uint8_t shift = 0, b_spaces;
+	uint8_t bgn_offset = 0;
 
-clean_it(wrap->wrap_str);
+	clean_it(wrap->wrap_str);
+
 	index = strlen(txt);
+
+	//considerar espaços brancos na primeira linha pra divisão entrar em modo append
+	b_spaces = cursor[0] / u8g2_GetMaxCharWidth(&u8g2);
+	index += b_spaces;
+
+	//calcular o numero de linhas necessarias
 	wrap->wrap_times = index / MAX_CHARS_ONSCREEN;
+
 	if (wrap->wrap_times) {
 		for (aux = 0; aux <= wrap->wrap_times; aux++) {
 			if (aux < N_LINES) {
 
-				shift = *(txt + ((MAX_CHARS_ONSCREEN - 1) * (aux))) == ' ' ?
-						1 : 0;
-				strncpy(wrap->wrap_str[aux],
-						txt + ((MAX_CHARS_ONSCREEN) * (aux)),
-						MAX_CHARS_ONSCREEN);
-				wrap->wrap_str[aux][MAX_CHARS_ONSCREEN] = '\0';
+				delta = MAX_CHARS_ONSCREEN - (aux == 0 ? b_spaces : 0);
+
+				strncpy(wrap->wrap_str[aux], txt + ((bgn_offset) * (aux)), delta);
+
+				wrap->wrap_str[aux][delta] = '\0';
+				bgn_offset = delta;
+
 			} else {
 				shift = *(txt + ((MAX_CHARS_ONSCREEN - 1) * (aux))) == ' ' ?
 						0 : 1;
@@ -715,6 +725,7 @@ clean_it(wrap->wrap_str);
 			}
 		}
 	}
+
 }
 
 bool Custom_Character_masker(uint8_t *txt, uint8_t *mask, uint8_t *v_cursor) {
@@ -745,7 +756,7 @@ void custom_character_dealer(uint8_t *txt) {
 	temp_y = cursor[1];
 	for (offset = 0; *(txt + offset) != '\0'; offset++) {
 		index = *(txt + offset);
-		if (index<=16 && (custom_character_db[index].custo_character_index)) {
+		if (index <= 16 && (custom_character_db[index].custo_character_index)) {
 			u8g2_DrawXBM(&u8g2, temp_x, temp_y + 4, char_w, char_h,
 					custom_character_db[index].custom_caracter);
 			u8g2_SendBuffer(&u8g2);
@@ -758,7 +769,6 @@ void custom_character_dealer(uint8_t *txt) {
 			temp_x += u8g2_GetMaxCharWidth(&u8g2);
 		}
 	}
-
 
 }
 
@@ -794,25 +804,22 @@ void lcd_print(uint8_t *txt) {
 			if (wrap.wrap_times) {
 				for (aux = 0; aux <= wrap.wrap_times; aux++) {
 					clean_it(mask);
-					if(aux){
-						cursor[1] += (u8g2_GetMaxCharHeight(&u8g2)) - ESP_ENTRE_LINHAS;
+					if (aux) {
+						cursor[1] += (u8g2_GetMaxCharHeight(&u8g2))
+								- ESP_ENTRE_LINHAS;
+						v_cursor[1] = cursor[1];
+						cursor[0] = 0;
 					}
 					enable = Custom_Character_masker(wrap.wrap_str[aux], mask,
 							v_cursor);
 //					u8g2_DrawUTF8(&u8g2, cursor[0], cursor[1],wrap.wrap_str[aux]);
 //					u8g2_SetDrawColor(&u8g2, 2);
 
- 					u8g2_DrawUTF8(&u8g2, v_cursor[0], v_cursor[1], mask);
-
+					u8g2_DrawUTF8(&u8g2, v_cursor[0], v_cursor[1], mask);
 
 					if (enable) {
 						custom_character_dealer(wrap.wrap_str[aux]);
 					}
-
-
-
-
-
 
 					u8g2_SendBuffer(&u8g2);
 					u8g2_SetDrawColor(&u8g2, 1);
