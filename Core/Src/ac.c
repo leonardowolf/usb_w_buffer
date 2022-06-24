@@ -2,7 +2,7 @@
  * app.c
  *
  *  Created on: Apr 18, 2022
- *      Author: munin
+ *      Author: munin the all seeing and unseen one
  */
 
 #include <ac.h>
